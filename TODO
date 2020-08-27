@@ -1,0 +1,11 @@
+
+TODO:
+    ☐ Create directories based on `MINECRAFT_SERVERS_TO_CREATE`
+    ☐ Discover directories from `MINECRAFT_SERVERS_DIRECTORY`
+    ☐ Get .tar from `S3_BUCKET`/directory
+    ☐ Spawn server in a tmux env
+    ☐ Auto restart on crash (give up if the server fails to boot 3 times in less than 10 mins)
+    ☐ Redis pub for console
+    ☐ Redis sub for start/start/stop/restart/start/run commands
+    ☐ Webhooks alerts
+    ☐ Auto updater

@@ -1,0 +1,133 @@
+package utils
+
+import (
+	"log"
+	"os"
+	"strconv"
+	"strings"
+
+	"github.com/joho/godotenv"
+)
+
+var (
+	// EnvFile is the path to the .env file config
+	EnvFile string = ".env"
+
+	// RedisEnabled specifies if Redis communication should be enabled
+	RedisEnabled bool = false
+	// RedisHost specifies the Redis server to use
+	RedisHost string = "localhost:6379"
+	// RedisPassword is the plaintext password of the server
+	RedisPassword string = ""
+	// RedisDatabase is the database ID used for Redis
+	RedisDatabase int = 0
+	// RedisPubSubChannel is the channel used for Redis pub/sub notifications
+	RedisPubSubChannel string = "rcsm"
+
+	// S3Enabled specifies wether or not S3 is enabled to update the server from templates
+	S3Enabled bool = false
+	// S3Endpoint specifies the S3 endpoint if you use something else than AWS
+	S3Endpoint string = ""
+	// S3Region specifies the region to use for the S3 bucket
+	S3Region string = ""
+	// S3Bucket specifies the bucket name for server templates
+	S3Bucket string = ""
+	// AWSAccessKeyID is the key ID for S3 authentication
+	AWSAccessKeyID string = ""
+	// AWSSecretAccessKey is the secret key for S3 authentication
+	AWSSecretAccessKey string = ""
+
+	// AutoStartOnBoot specifies if Minecraft servers should start when rcsm starts
+	AutoStartOnBoot bool = true
+	// AutoRestartCrashEnabled specifies if rcsm should attempt to restart servers on crash
+	AutoRestartCrashEnabled bool = true
+	// AutoRestartCrashMaxTries specifies how many tries rcsm should attempt to get a server running for more than 5 minutes
+	AutoRestartCrashMaxTries int = 3
+	// StopCommand is the command to run when trying to stop a server
+	StopCommand string = "stop"
+
+	// WebhooksEnabled specifies if Webhooks (using Discord format) are enabled for alerts
+	WebhooksEnabled bool = false
+	// WebhooksEndpoint is the endpoint to use to send notifications to
+	WebhooksEndpoint string = ""
+
+	// AutoUpdateEnabled specifies if the auto update system should check for new versions of rcsm and install them
+	AutoUpdateEnabled bool = true
+	// AutoUpdateIntervalMinutes specifies how often updates should be checked
+	AutoUpdateIntervalMinutes int = 60
+	// AutoUpdateRepo specifies where to download updates for the last rcsm release
+	AutoUpdateRepo string = "https://github.com/redcraft-org/redcraft_server_management/"
+)
+
+// ReadConfig reads the config from the env file
+func ReadConfig() {
+	EnvFile = readString("RCSM_ENV_FILE", ".env")
+
+	err := godotenv.Load(EnvFile)
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	RedisEnabled = readBool("REDIS_ENABLED", RedisEnabled)
+	RedisHost = readString("REDIS_HOST", RedisHost)
+	RedisPassword = readString("REDIS_PASSWORD", RedisPassword)
+	RedisDatabase = readInt("REDIS_DATABASE", RedisDatabase)
+	RedisPubSubChannel = readString("REDIS_PUB_SUB_CHANNEL", RedisPubSubChannel)
+
+	S3Enabled = readBool("S3_ENABLED", S3Enabled)
+	S3Endpoint = readString("S3_ENDPOINT", S3Endpoint)
+	S3Region = readString("S3_REGION", S3Region)
+	S3Bucket = readString("S3_BUCKET", S3Bucket)
+	AWSAccessKeyID = readString("AWS_ACCESS_KEY_ID", AWSAccessKeyID)
+	AWSSecretAccessKey = readString("AWS_SECRET_ACCESS_KEY", AWSSecretAccessKey)
+
+	AutoStartOnBoot = readBool("AUTO_START_ON_BOOT", AutoStartOnBoot)
+	AutoRestartCrashEnabled = readBool("AUTO_RESTART_CRASH_ENABLED", AutoRestartCrashEnabled)
+	AutoRestartCrashMaxTries = readInt("AUTO_RESTART_CRASH_MAX_TRIES", AutoRestartCrashMaxTries)
+	StopCommand = readString("STOP_COMMAND", StopCommand)
+
+	WebhooksEnabled = readBool("WEBHOOKS_ENABLED", WebhooksEnabled)
+	WebhooksEndpoint = readString("WEBHOOKS_ENDPOINT", WebhooksEndpoint)
+
+	AutoUpdateEnabled = readBool("AUTO_UPDATE_ENABLED", AutoUpdateEnabled)
+	AutoUpdateIntervalMinutes = readInt("AUTO_UPDATE_INTERVAL_MINUTES", AutoUpdateIntervalMinutes)
+	AutoUpdateRepo = readString("AUTO_UPDATE_REPO", AutoUpdateRepo)
+}
+
+func readString(envName string, defaultValue string) string {
+	envVar := os.Getenv(envName)
+	if envVar == "" {
+		return defaultValue
+	}
+	return envVar
+}
+
+func readInt(envName string, defaultValue int) int {
+	envVarRaw := os.Getenv(envName)
+	if envVarRaw == "" {
+		return defaultValue
+	}
+	envVar, err := strconv.Atoi(envVarRaw)
+	if err != nil {
+		return defaultValue
+	}
+	return envVar
+}
+
+func readBool(envName string, defaultValue bool) bool {
+	envVarRaw := os.Getenv(envName)
+	if envVarRaw == "" {
+		return defaultValue
+	}
+	envVar := strings.ToLower(envVarRaw)
+
+	switch envVar {
+	case
+		"true",
+		"yes",
+		"on",
+		"1":
+		return true
+	}
+	return false
+}
