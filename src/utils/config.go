@@ -37,6 +37,11 @@ var (
 	// AWSSecretAccessKey is the secret key for S3 authentication
 	AWSSecretAccessKey string = ""
 
+	// MinecraftServersDirectory is the directory where server directories are stored
+	MinecraftServersDirectory string = "/opt/minecraft"
+	// MinecraftServersToCreate is the servers you want to deploy if a template exists on S3
+	MinecraftServersToCreate string = ""
+
 	// AutoStartOnBoot specifies if Minecraft servers should start when rcsm starts
 	AutoStartOnBoot bool = true
 	// AutoRestartCrashEnabled specifies if rcsm should attempt to restart servers on crash
@@ -80,6 +85,9 @@ func ReadConfig() {
 	S3Bucket = readString("S3_BUCKET", S3Bucket)
 	AWSAccessKeyID = readString("AWS_ACCESS_KEY_ID", AWSAccessKeyID)
 	AWSSecretAccessKey = readString("AWS_SECRET_ACCESS_KEY", AWSSecretAccessKey)
+
+	MinecraftServersDirectory = readString("MINECRAFT_SERVERS_DIRECTORY", MinecraftServersDirectory)
+	MinecraftServersToCreate = readString("MINECRAFT_SERVERS_TO_CREATE", MinecraftServersToCreate)
 
 	AutoStartOnBoot = readBool("AUTO_START_ON_BOOT", AutoStartOnBoot)
 	AutoRestartCrashEnabled = readBool("AUTO_RESTART_CRASH_ENABLED", AutoRestartCrashEnabled)

@@ -5,7 +5,7 @@ TODO:
     ☐ Get .tar from `S3_BUCKET`/directory
     ☐ Spawn server in a tmux env
     ☐ Auto restart on crash (give up if the server fails to boot 3 times in less than 10 mins)
-    ☐ Redis pub for console
-    ☐ Redis sub for start/start/stop/restart/start/run commands
+    ☐ Redis pub for console/stop/start
+    ☐ Redis sub for start/stop/restart/command
     ☐ Webhooks alerts
     ☐ Auto updater

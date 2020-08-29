@@ -1,4 +1,4 @@
-bin/rcsm
+bin/*
 .idea/
 pkg/
 src/github.com/

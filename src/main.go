@@ -6,6 +6,8 @@ import (
 
 func main() {
 	utils.ReadConfig()
+	utils.CreateMissingServers()
+
 	if utils.RedisEnabled {
 		utils.RedisConnect()
 	}
