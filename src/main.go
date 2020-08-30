@@ -1,14 +1,16 @@
 package main
 
 import (
+	"config"
 	"utils"
 )
 
 func main() {
-	utils.ReadConfig()
+	config.ReadConfig()
 	utils.CreateMissingServers()
+	utils.DiscoverServers()
 
-	if utils.RedisEnabled {
+	if config.RedisEnabled {
 		utils.RedisConnect()
 	}
 }

@@ -1,4 +1,4 @@
-package utils
+package config
 
 import (
 	"log"
@@ -48,8 +48,6 @@ var (
 	AutoRestartCrashEnabled bool = true
 	// AutoRestartCrashMaxTries specifies how many tries rcsm should attempt to get a server running for more than 5 minutes
 	AutoRestartCrashMaxTries int = 3
-	// StopCommand is the command to run when trying to stop a server
-	StopCommand string = "stop"
 
 	// WebhooksEnabled specifies if Webhooks (using Discord format) are enabled for alerts
 	WebhooksEnabled bool = false
@@ -92,7 +90,6 @@ func ReadConfig() {
 	AutoStartOnBoot = readBool("AUTO_START_ON_BOOT", AutoStartOnBoot)
 	AutoRestartCrashEnabled = readBool("AUTO_RESTART_CRASH_ENABLED", AutoRestartCrashEnabled)
 	AutoRestartCrashMaxTries = readInt("AUTO_RESTART_CRASH_MAX_TRIES", AutoRestartCrashMaxTries)
-	StopCommand = readString("STOP_COMMAND", StopCommand)
 
 	WebhooksEnabled = readBool("WEBHOOKS_ENABLED", WebhooksEnabled)
 	WebhooksEndpoint = readString("WEBHOOKS_ENDPOINT", WebhooksEndpoint)
