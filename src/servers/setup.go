@@ -1,4 +1,4 @@
-package utils
+package servers
 
 import (
 	"config"
@@ -8,24 +8,7 @@ import (
 	"os"
 	"path"
 	"strings"
-	"sync"
 )
-
-// MinecraftServer defines the stats about a server
-type MinecraftServer struct {
-	name         string
-	fullPath     string
-	running      bool
-	crashed      bool
-	startHistory []int64
-	restartTries int
-	StartArgs    string `json:"start_args"`
-	JarName      string `json:"jar_name"`
-	StopCommand  string `json:"stop_command"`
-}
-
-var minecraftServers map[string]MinecraftServer = make(map[string]MinecraftServer)
-var minecraftServersLock sync.Mutex
 
 // CreateMissingServers creates missing servers from MINECRAFT_SERVERS_TO_CREATE
 func CreateMissingServers() {
@@ -42,32 +25,6 @@ func CreateMissingServers() {
 				log.Fatal("Could not create server: ", err)
 			}
 			log.Printf("Created directory for server %s", serverToCreate)
-		}
-	}
-}
-
-// DiscoverServers does a scan to know which servers exists
-func DiscoverServers() {
-	fileNodes, err := ioutil.ReadDir(config.MinecraftServersDirectory)
-	if err != nil {
-		log.Fatal("Could not scan servers: ", err)
-	}
-
-	// Acquire lock on minecraftServers
-	minecraftServersLock.Lock()
-	defer minecraftServersLock.Unlock()
-
-	for _, fileNode := range fileNodes {
-		if fileNode.IsDir() {
-			serverName := fileNode.Name()
-			serverPath := path.Join(config.MinecraftServersDirectory, serverName)
-
-			minecraftServer := readConfig(serverPath)
-
-			minecraftServer.name = serverName
-			minecraftServer.fullPath = serverPath
-
-			minecraftServers[serverName] = minecraftServer
 		}
 	}
 }

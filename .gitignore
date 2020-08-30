@@ -4,5 +4,6 @@ bin/*
 pkg/
 src/github.com/
 src/golang.org/
+src/go.opentelemetry.io/
 
 .env
