@@ -6,6 +6,7 @@ import (
 	"log"
 	"path"
 	"sync"
+	"time"
 	"tmux"
 )
 
@@ -43,7 +44,11 @@ func Discover() {
 			serverName := fileNode.Name()
 			serverPath := path.Join(config.MinecraftServersDirectory, serverName)
 
-			UpdateTemplate(serverName)
+			if !tmux.SessionExists(serverName) {
+				UpdateTemplate(serverName)
+			} else {
+				log.Printf("Not updating template for %s, server is running", serverName)
+			}
 
 			minecraftServer := readConfig(serverPath)
 
@@ -90,9 +95,7 @@ func StartAllServers() {
 	log.Printf("Starting all servers")
 
 	for _, server := range minecraftServers {
-		if !server.running {
-			startServer(server)
-		}
+		startServer(server)
 	}
 }
 
@@ -105,34 +108,72 @@ func StopAllServers() {
 	log.Printf("Stopping all servers")
 
 	for _, server := range minecraftServers {
-		if server.running {
-			stopServer(server)
+		stopServer(server)
+	}
+}
+
+// StartHealthCheck starts a task to check that servers are still running
+func StartHealthCheck() {
+	ticker := time.NewTicker(time.Second)
+	quit := make(chan struct{})
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				runHealthCheck()
+			case <-quit:
+				ticker.Stop()
+				return
+			}
+		}
+	}()
+}
+
+func runHealthCheck() {
+	// Acquire lock on minecraftServers
+	minecraftServersLock.Lock()
+	defer minecraftServersLock.Unlock()
+
+	for _, server := range minecraftServers {
+		serverName := server.name
+		if server.running && !tmux.SessionExists(serverName) {
+			log.Printf("Server %s is stopped, restarting", serverName)
+			UpdateTemplate(serverName)
+			startServer(server)
 		}
 	}
 }
 
 func startServer(server MinecraftServer) bool {
-	log.Printf("Starting server %s", server.name)
+	serverName := server.name
+	if server.running || tmux.SessionExists(serverName) {
+		log.Printf("%s is already started", serverName)
+		return true
+	}
 
-	err := tmux.SessionCreate(server.name, server.fullPath, server.StartArgs, server.JarName)
+	attachCommand, err := tmux.SessionCreate(serverName, server.fullPath, server.StartArgs, server.JarName)
 	if err != nil {
-		log.Printf("Could not start %s: %s", server.name, err)
-		isRunning := tmux.SessionExists(server.name)
+		log.Printf("Could not start %s: %s", serverName, err)
+		isRunning := tmux.SessionExists(serverName)
 		server.running = isRunning
 		server.crashed = !isRunning
 	} else {
-		log.Printf("Server %s started", server.name)
+		log.Printf("Starting server %s, run \"%s\" to see the console", serverName, attachCommand)
 		server.running = true
 		server.crashed = false
 	}
 
-	minecraftServers[server.name] = server
+	minecraftServers[serverName] = server
 
 	return server.running
 }
 
 func stopServer(server MinecraftServer) bool {
-	log.Printf("Stopping server %s", server.name)
+	serverName := server.name
+	if !server.running && !tmux.SessionExists(serverName) {
+		log.Printf("%s is already stopped", serverName)
+		return true
+	}
 
 	err := tmux.SessionTerminate(server.name, server.StopCommand, false)
 	if err != nil {
@@ -141,12 +182,12 @@ func stopServer(server MinecraftServer) bool {
 		server.running = isRunning
 		server.crashed = isRunning
 	} else {
-		log.Printf("Server %s stopped", server.name)
+		log.Printf("Stopping server %s", server.name)
 		server.running = false
 		server.crashed = false
 	}
 
 	minecraftServers[server.name] = server
 
-	return server.running
+	return !server.running
 }

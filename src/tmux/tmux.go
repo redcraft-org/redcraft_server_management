@@ -37,11 +37,12 @@ func WaitForSessionState(serverName string, wantedState bool, timeout time.Durat
 }
 
 // SessionCreate is used to create a tmux session and start a command
-func SessionCreate(serverName string, fullPath string, startArgs string, jarName string) error {
+func SessionCreate(serverName string, fullPath string, startArgs string, jarName string) (string, error) {
 	sessionName := getSessionName(serverName)
+	attachCommand := getAttachCommand(serverName)
 
 	if SessionExists(serverName) {
-		return fmt.Errorf("%s is already started, run \"%s\" to see the console", serverName, getAttachCommand(serverName))
+		return "", fmt.Errorf("Already started, run \"%s\" to see the console", attachCommand)
 	}
 
 	tmuxParams := []string{"new", "-d", "-s", sessionName, "java", startArgs, "-jar", jarName}
@@ -53,15 +54,14 @@ func SessionCreate(serverName string, fullPath string, startArgs string, jarName
 
 	err := cmd.Run()
 	if err != nil {
-		log.Printf("Started server %s, run \"%s\" to see the console", serverName, getAttachCommand(serverName))
-		return err
+		return "", err
 	}
 
 	if WaitForSessionState(serverName, true, time.Second) != nil {
-		return fmt.Errorf("Server %s instantly crashed at launch, check logs", serverName)
+		return "", fmt.Errorf("Server crashed on launch, check logs")
 	}
 
-	return nil
+	return attachCommand, nil
 }
 
 // SessionRunCommand is used to run a command on a session

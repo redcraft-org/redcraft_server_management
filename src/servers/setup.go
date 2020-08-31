@@ -50,8 +50,6 @@ func readConfig(serverPath string) MinecraftServer {
 		log.Fatal("Could not decode server config: ", err)
 	}
 
-	log.Printf("Read %s", configFilePath)
-
 	return minecraftServer
 }
 

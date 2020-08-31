@@ -56,8 +56,12 @@ func templateExists(serverName string) bool {
 func downloadTemplate(serverName string) {
 	_, downloader := getS3Client()
 
+	s3Bucket := config.S3Bucket
 	templateFileName := fmt.Sprintf("%s.tar", serverName)
+	s3Location := fmt.Sprintf("s3://%s/%s", s3Bucket, templateFileName)
 	serverPath := path.Join(config.MinecraftServersDirectory, serverName)
+
+	log.Printf("Downloading template %s", s3Location)
 
 	templateFile, err := ioutil.TempFile("", "rcsm-template")
 	defer templateFile.Close()
@@ -65,14 +69,12 @@ func downloadTemplate(serverName string) {
 
 	_, err = downloader.Download(templateFile,
 		&s3.GetObjectInput{
-			Bucket: aws.String(config.S3Bucket),
+			Bucket: aws.String(s3Bucket),
 			Key:    aws.String(templateFileName),
 		})
 	if err != nil {
 		log.Fatalf("Unable to download template for server %s: %s", serverName, err)
 	}
-
-	// templateFile.Seek(0, io.SeekStart)
 
 	archive := tar.NewReader(templateFile)
 	for {
@@ -81,7 +83,7 @@ func downloadTemplate(serverName string) {
 			break // End of archive
 		}
 		if err != nil {
-			log.Fatalf("Error while reading template %s: %s", templateFileName, err)
+			log.Fatalf("Error while reading template %s: %s", s3Location, err)
 		}
 
 		topLevelFile := strings.Split(header.Name, "/")[0]
@@ -110,7 +112,7 @@ func downloadTemplate(serverName string) {
 			log.Fatal("Could not copy file from template: ", err)
 		}
 	}
-	log.Printf("Restored %s to %s", templateFileName, serverPath)
+	log.Printf("Template applied to %s", serverName)
 }
 
 func getS3Client() (*s3.S3, *s3manager.Downloader) {

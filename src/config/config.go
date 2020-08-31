@@ -48,6 +48,8 @@ var (
 
 	// AutoStartOnBoot specifies if Minecraft servers should start when rcsm starts
 	AutoStartOnBoot bool = true
+	// AutoStopOnClose specifies if Minecraft servers should stopped when rcsm closes
+	AutoStopOnClose bool = false
 	// AutoRestartCrashEnabled specifies if rcsm should attempt to restart servers on crash
 	AutoRestartCrashEnabled bool = true
 	// AutoRestartCrashMaxTries specifies how many tries rcsm should attempt to get a server running for more than 5 minutes
@@ -97,6 +99,7 @@ func ReadConfig() {
 	MinecraftTmuxSessionPrefix = readString("MINECRAFT_TMUX_SESSION_PREFIX", MinecraftTmuxSessionPrefix)
 
 	AutoStartOnBoot = readBool("AUTO_START_ON_BOOT", AutoStartOnBoot)
+	AutoStopOnClose = readBool("AUTO_STOP_ON_CLOSE", AutoStopOnClose)
 	AutoRestartCrashEnabled = readBool("AUTO_RESTART_CRASH_ENABLED", AutoRestartCrashEnabled)
 	AutoRestartCrashMaxTries = readInt("AUTO_RESTART_CRASH_MAX_TRIES", AutoRestartCrashMaxTries)
 	AutoRestartCrashTimeoutSec = readInt("AUTO_RESTART_CRASH_TIMEOUT_SEC", AutoRestartCrashTimeoutSec)
