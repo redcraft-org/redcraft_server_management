@@ -6,6 +6,7 @@ import (
 	"log"
 	"path"
 	"sync"
+	"tmux"
 )
 
 // MinecraftServer defines the stats about a server
@@ -52,4 +53,100 @@ func Discover() {
 			minecraftServers[serverName] = minecraftServer
 		}
 	}
+
+	log.Printf("Found %d servers", len(minecraftServers))
+}
+
+// StartServer starts a server with a specified name
+func StartServer(serverName string) {
+	// Acquire lock on minecraftServers
+	minecraftServersLock.Lock()
+	defer minecraftServersLock.Unlock()
+
+	server := minecraftServers[serverName]
+
+	startServer(server)
+}
+
+// StopServer stops a server with a specified name
+func StopServer(serverName string) {
+	// Acquire lock on minecraftServers
+	minecraftServersLock.Lock()
+	defer minecraftServersLock.Unlock()
+
+	log.Printf("Stopping all servers")
+
+	server := minecraftServers[serverName]
+
+	stopServer(server)
+}
+
+// StartAllServers starts all servers
+func StartAllServers() {
+	// Acquire lock on minecraftServers
+	minecraftServersLock.Lock()
+	defer minecraftServersLock.Unlock()
+
+	log.Printf("Starting all servers")
+
+	for _, server := range minecraftServers {
+		if !server.running {
+			startServer(server)
+		}
+	}
+}
+
+// StopAllServers stops all servers
+func StopAllServers() {
+	// Acquire lock on minecraftServers
+	minecraftServersLock.Lock()
+	defer minecraftServersLock.Unlock()
+
+	log.Printf("Stopping all servers")
+
+	for _, server := range minecraftServers {
+		if server.running {
+			stopServer(server)
+		}
+	}
+}
+
+func startServer(server MinecraftServer) bool {
+	log.Printf("Starting server %s", server.name)
+
+	err := tmux.SessionCreate(server.name, server.fullPath, server.StartArgs, server.JarName)
+	if err != nil {
+		log.Printf("Could not start %s: %s", server.name, err)
+		isRunning := tmux.SessionExists(server.name)
+		server.running = isRunning
+		server.crashed = !isRunning
+	} else {
+		log.Printf("Server %s started", server.name)
+		server.running = true
+		server.crashed = false
+	}
+
+	minecraftServers[server.name] = server
+
+	return server.running
+}
+
+func stopServer(server MinecraftServer) bool {
+	log.Printf("Stopping server %s", server.name)
+
+	err := tmux.SessionTerminate(server.name, server.StopCommand, false)
+	if err != nil {
+		log.Printf("Error while stopping %s: %s", server.name, err)
+		isRunning := tmux.SessionExists(server.name)
+		server.running = isRunning
+		server.crashed = isRunning
+	} else {
+		log.Printf("Server %s stopped", server.name)
+		server.running = false
+		server.crashed = false
+	}
+
+	minecraftServers[server.name] = server
+
+	return server.running
 }

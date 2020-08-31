@@ -10,6 +10,8 @@ import (
 )
 
 var (
+	// Version is the current version of rcsm
+	Version string = "0.0.1"
 	// EnvFile is the path to the .env file config
 	EnvFile string = ".env"
 
@@ -41,6 +43,8 @@ var (
 	MinecraftServersDirectory string = "/opt/minecraft"
 	// MinecraftServersToCreate is the servers you want to deploy if a template exists on S3
 	MinecraftServersToCreate string = ""
+	// MinecraftTmuxSessionPrefix is the prefix to use for tmux session names
+	MinecraftTmuxSessionPrefix string = "rcsm_"
 
 	// AutoStartOnBoot specifies if Minecraft servers should start when rcsm starts
 	AutoStartOnBoot bool = true
@@ -48,6 +52,8 @@ var (
 	AutoRestartCrashEnabled bool = true
 	// AutoRestartCrashMaxTries specifies how many tries rcsm should attempt to get a server running for more than 5 minutes
 	AutoRestartCrashMaxTries int = 3
+	// AutoRestartCrashTimeoutSec specifies for how long rcsm will wait to kill the server if not responding
+	AutoRestartCrashTimeoutSec int = 60
 
 	// WebhooksEnabled specifies if Webhooks (using Discord format) are enabled for alerts
 	WebhooksEnabled bool = false
@@ -65,6 +71,8 @@ var (
 // ReadConfig reads the config from the env file
 func ReadConfig() {
 	EnvFile = readString("RCSM_ENV_FILE", ".env")
+
+	log.Printf("Loading config from %s", EnvFile)
 
 	err := godotenv.Load(EnvFile)
 	if err != nil {
@@ -86,10 +94,12 @@ func ReadConfig() {
 
 	MinecraftServersDirectory = readString("MINECRAFT_SERVERS_DIRECTORY", MinecraftServersDirectory)
 	MinecraftServersToCreate = readString("MINECRAFT_SERVERS_TO_CREATE", MinecraftServersToCreate)
+	MinecraftTmuxSessionPrefix = readString("MINECRAFT_TMUX_SESSION_PREFIX", MinecraftTmuxSessionPrefix)
 
 	AutoStartOnBoot = readBool("AUTO_START_ON_BOOT", AutoStartOnBoot)
 	AutoRestartCrashEnabled = readBool("AUTO_RESTART_CRASH_ENABLED", AutoRestartCrashEnabled)
 	AutoRestartCrashMaxTries = readInt("AUTO_RESTART_CRASH_MAX_TRIES", AutoRestartCrashMaxTries)
+	AutoRestartCrashTimeoutSec = readInt("AUTO_RESTART_CRASH_TIMEOUT_SEC", AutoRestartCrashTimeoutSec)
 
 	WebhooksEnabled = readBool("WEBHOOKS_ENABLED", WebhooksEnabled)
 	WebhooksEndpoint = readString("WEBHOOKS_ENDPOINT", WebhooksEndpoint)
@@ -97,6 +107,8 @@ func ReadConfig() {
 	AutoUpdateEnabled = readBool("AUTO_UPDATE_ENABLED", AutoUpdateEnabled)
 	AutoUpdateIntervalMinutes = readInt("AUTO_UPDATE_INTERVAL_MINUTES", AutoUpdateIntervalMinutes)
 	AutoUpdateRepo = readString("AUTO_UPDATE_REPO", AutoUpdateRepo)
+
+	log.Printf("Config read")
 }
 
 func readString(envName string, defaultValue string) string {

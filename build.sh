@@ -6,12 +6,13 @@ export GOPATH=`pwd`
 export GO_EXECUTABLE=`which go`
 
 # Set vscode settings
-mkdir -p .vscode
-echo -n "{
-    \"go.gopath\": \"`pwd`\"
-}" > .vscode/settings.json
+if [ ! -f ".vscode/settings.json" ]; then
+    mkdir -p .vscode
+    echo -n "{
+        \"go.gopath\": \"`pwd`\"
+    }" > .vscode/settings.json
+fi
 
-"$GO_EXECUTABLE" get github.com/wricardo/gomux
 "$GO_EXECUTABLE" get github.com/joho/godotenv
 "$GO_EXECUTABLE" get github.com/go-redis/redis
 "$GO_EXECUTABLE" get github.com/aws/aws-sdk-go/aws
