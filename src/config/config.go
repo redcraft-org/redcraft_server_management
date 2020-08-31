@@ -107,8 +107,6 @@ func ReadConfig() {
 	AutoUpdateEnabled = readBool("AUTO_UPDATE_ENABLED", AutoUpdateEnabled)
 	AutoUpdateIntervalMinutes = readInt("AUTO_UPDATE_INTERVAL_MINUTES", AutoUpdateIntervalMinutes)
 	AutoUpdateRepo = readString("AUTO_UPDATE_REPO", AutoUpdateRepo)
-
-	log.Printf("Config read")
 }
 
 func readString(envName string, defaultValue string) string {

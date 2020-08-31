@@ -54,7 +54,7 @@ func Discover() {
 		}
 	}
 
-	log.Printf("Found %d servers", len(minecraftServers))
+	log.Printf("Found %d server(s)", len(minecraftServers))
 }
 
 // StartServer starts a server with a specified name
