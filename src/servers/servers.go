@@ -44,10 +44,12 @@ func Discover() {
 			serverName := fileNode.Name()
 			serverPath := path.Join(config.MinecraftServersDirectory, serverName)
 
-			if !tmux.SessionExists(serverName) {
-				UpdateTemplate(serverName)
-			} else {
-				log.Printf("Not updating template for %s, server is running", serverName)
+			if !config.S3Enabled {
+				if !tmux.SessionExists(serverName) {
+					UpdateTemplate(serverName)
+				} else {
+					log.Printf("Not updating template for %s, server is running", serverName)
+				}
 			}
 
 			minecraftServer := readConfig(serverPath)
@@ -138,7 +140,9 @@ func runHealthCheck() {
 		serverName := server.name
 		if server.running && !tmux.SessionExists(serverName) {
 			log.Printf("Server %s is stopped, restarting", serverName)
-			UpdateTemplate(serverName)
+			if !config.S3Enabled {
+				UpdateTemplate(serverName)
+			}
 			startServer(server)
 		}
 	}

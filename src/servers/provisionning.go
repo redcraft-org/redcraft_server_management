@@ -26,10 +26,6 @@ var (
 
 // UpdateTemplate downloads the most recent template from S3 and tries to update server files
 func UpdateTemplate(serverName string) {
-	if !config.S3Enabled {
-		return
-	}
-
 	if !templateExists(serverName) {
 		log.Printf("No template found for %s on s3://%s, skipping", serverName, config.S3Bucket)
 	} else {
