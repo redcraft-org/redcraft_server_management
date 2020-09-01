@@ -18,16 +18,18 @@ type MinecraftServer struct {
 	fullPath     string
 	running      bool
 	crashed      bool
-	startHistory []int64
-	restartTries int
+	restartTries int64
+	firstRetry   time.Time
 	StartArgs    string `json:"start_args"`
 	JarName      string `json:"jar_name"`
 	StopCommand  string `json:"stop_command"`
 }
 
 var (
-	minecraftServers     map[string]MinecraftServer = make(map[string]MinecraftServer)
-	minecraftServersLock sync.Mutex
+	minecraftServers       map[string]MinecraftServer = make(map[string]MinecraftServer)
+	minecraftServersLock   sync.Mutex
+	healthcheckRunning     bool
+	healthcheckRunningLock sync.Mutex
 )
 
 // Discover does a scan to know which servers exists
@@ -141,6 +143,13 @@ func StartHealthCheck() {
 }
 
 func runHealthCheck() {
+	healthcheckRunningLock.Lock()
+	defer healthcheckRunningLock.Unlock()
+	if healthcheckRunning {
+		return
+	}
+	healthcheckRunningLock.Unlock()
+
 	// Acquire lock on minecraftServers
 	minecraftServersLock.Lock()
 	defer minecraftServersLock.Unlock()
@@ -148,18 +157,42 @@ func runHealthCheck() {
 	for _, server := range minecraftServers {
 		serverName := server.name
 		if server.running && !tmux.SessionExists(serverName) {
-			events.TriggerLogEvent(config.InstanceName, "info", serverName, "Server is stopped, restarting")
-			if !config.S3Enabled {
-				UpdateTemplate(serverName)
+			crashTimeout, err := time.ParseDuration(fmt.Sprintf("%ds", config.AutoRestartCrashTimeoutSec))
+			if err != nil {
+				events.TriggerLogEvent(config.InstanceName, "severe", "healthcheck", fmt.Sprintf("Could not parse timeout: %s", err))
+			} else if time.Now().Add(-crashTimeout).Before(server.firstRetry) {
+				server.restartTries = 0
 			}
-			startServer(server)
+
+			// We want to log an automated restart to avoid bootloops
+			if server.restartTries == 0 {
+				server.firstRetry = time.Now()
+			}
+			server.restartTries++
+
+			if server.restartTries > config.AutoRestartCrashMaxTries {
+				events.TriggerLogEvent(config.InstanceName, "severe", serverName, "Server crash bootloop")
+				server.running = false
+				server.crashed = true
+			} else {
+				events.TriggerLogEvent(config.InstanceName, "info", serverName, "Server is stopped, restarting")
+				if !config.S3Enabled {
+					UpdateTemplate(serverName)
+				}
+				startServer(server)
+			}
+			minecraftServers[serverName] = server
 		}
 	}
+
+	healthcheckRunningLock.Lock()
+	healthcheckRunning = false
+	// No need to unlock, the defer at the top will do it
 }
 
 func startServer(server MinecraftServer) bool {
 	serverName := server.name
-	if server.running || tmux.SessionExists(serverName) {
+	if tmux.SessionExists(serverName) {
 		events.TriggerLogEvent(config.InstanceName, "info", serverName, "Server already started")
 		return true
 	}
