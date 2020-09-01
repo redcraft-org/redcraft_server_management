@@ -3,8 +3,9 @@ package servers
 import (
 	"config"
 	"encoding/json"
+	"events"
+	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path"
 	"strings"
@@ -22,14 +23,15 @@ func CreateMissingServers() {
 		if os.IsNotExist(err) {
 			err = os.MkdirAll(serverDirectoryPath, os.ModePerm)
 			if err != nil {
-				log.Fatal("Could not create server: ", err)
+				events.TriggerLogEvent(config.InstanceName, "severe", serverDirectoryName, fmt.Sprintf("Could not create server: ", err))
 			}
-			log.Printf("Created directory for server %s", serverToCreate)
+			events.TriggerLogEvent(config.InstanceName, "info", serverDirectoryName, "Created directory for server")
 		}
 	}
 }
 
-func readConfig(serverPath string) MinecraftServer {
+func readConfig(serverPath string) (MinecraftServer, error) {
+	var minecraftServer MinecraftServer
 	configFilePath := path.Join(serverPath, "rcsm_config.json")
 
 	_, err := os.Stat(configFilePath)
@@ -39,18 +41,17 @@ func readConfig(serverPath string) MinecraftServer {
 
 	jsonFile, err := os.Open(configFilePath)
 	if err != nil {
-		log.Fatal("Could not read server config: ", err)
+		return minecraftServer, err
 	}
 	defer jsonFile.Close()
 
-	var minecraftServer MinecraftServer
 	jsonBytes, _ := ioutil.ReadAll(jsonFile)
 	err = json.Unmarshal(jsonBytes, &minecraftServer)
 	if err != nil {
-		log.Fatal("Could not decode server config: ", err)
+		return minecraftServer, err
 	}
 
-	return minecraftServer
+	return minecraftServer, nil
 }
 
 func initConfig(serverPath string) {
@@ -62,15 +63,15 @@ func initConfig(serverPath string) {
 
 	jsonContents, err := json.MarshalIndent(statusTemplate, "", "    ")
 	if err != nil {
-		log.Fatal("Could not serialize default template: ", err)
+		events.TriggerLogEvent(config.InstanceName, "severe", "setup", fmt.Sprintf("Could not serialize default template: ", err))
 	}
 
 	configFilePath := path.Join(serverPath, "rcsm_config.json")
 
 	err = ioutil.WriteFile(configFilePath, jsonContents, 0644)
 	if err != nil {
-		log.Fatal("Could not save rcsm_config.json: ", err)
+		events.TriggerLogEvent(config.InstanceName, "severe", "setup", fmt.Sprintf("Could not save default template: ", err))
 	}
 
-	log.Printf("Created default file %s", configFilePath)
+	events.TriggerLogEvent(config.InstanceName, "info", "setup", fmt.Sprintf("Saved default template at %s", configFilePath))
 }

@@ -14,7 +14,7 @@ if [ ! -f ".vscode/settings.json" ]; then
 fi
 
 "$GO_EXECUTABLE" get github.com/joho/godotenv
-"$GO_EXECUTABLE" get github.com/go-redis/redis
+"$GO_EXECUTABLE" get gopkg.in/redis.v2
 "$GO_EXECUTABLE" get github.com/aws/aws-sdk-go/aws
 "$GO_EXECUTABLE" get github.com/aws/aws-sdk-go/service/s3
 

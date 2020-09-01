@@ -2,8 +2,8 @@ package tmux
 
 import (
 	"config"
+	"events"
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"time"
@@ -58,7 +58,7 @@ func SessionCreate(serverName string, fullPath string, startArgs string, jarName
 	}
 
 	if WaitForSessionState(serverName, true, time.Second) != nil {
-		return "", fmt.Errorf("Server crashed on launch, check logs")
+		return "", fmt.Errorf("Server crashed on start, check server logs")
 	}
 
 	return attachCommand, nil
@@ -98,7 +98,7 @@ func SessionTerminate(serverName string, stopCommand string, instantKill bool) e
 
 	err = WaitForSessionState(serverName, false, timeoutDuration)
 	if err != nil {
-		log.Printf("Timeout of %d seconds for shutting down %s reached, killing the server", timeoutSeconds, serverName)
+		events.TriggerLogEvent(config.InstanceName, "warn", serverName, fmt.Sprintf("Timeout shutdown of %d seconds reached, killing the server", timeoutSeconds))
 		return killRawSession(sessionName)
 	}
 
@@ -107,7 +107,7 @@ func SessionTerminate(serverName string, stopCommand string, instantKill bool) e
 
 func killRawSession(sessionName string) error {
 	cmd := exec.Command("tmux", "kill-session", "-t", sessionName)
-	log.Printf("Sending kill to %s", sessionName)
+	events.TriggerLogEvent(config.InstanceName, "warn", sessionName, "Sending kill")
 
 	return cmd.Run()
 }

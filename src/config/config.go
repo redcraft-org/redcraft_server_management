@@ -1,7 +1,8 @@
 package config
 
 import (
-	"log"
+	"events"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -15,6 +16,9 @@ var (
 	// EnvFile is the path to the .env file config
 	EnvFile string = ".env"
 
+	// InstanceName is used for event reporting on Redis and Webhooks, useful if you have multiple rcsm instances
+	InstanceName string = "server"
+
 	// RedisEnabled specifies if Redis communication should be enabled
 	RedisEnabled bool = false
 	// RedisHost specifies the Redis server to use
@@ -22,7 +26,7 @@ var (
 	// RedisPassword is the plaintext password of the server
 	RedisPassword string = ""
 	// RedisDatabase is the database ID used for Redis
-	RedisDatabase int = 0
+	RedisDatabase int64 = 0
 	// RedisPubSubChannel is the channel used for Redis pub/sub notifications
 	RedisPubSubChannel string = "rcsm"
 
@@ -53,9 +57,9 @@ var (
 	// AutoRestartCrashEnabled specifies if rcsm should attempt to restart servers on crash
 	AutoRestartCrashEnabled bool = true
 	// AutoRestartCrashMaxTries specifies how many tries rcsm should attempt to get a server running for more than 5 minutes
-	AutoRestartCrashMaxTries int = 3
+	AutoRestartCrashMaxTries int64 = 3
 	// AutoRestartCrashTimeoutSec specifies for how long rcsm will wait to kill the server if not responding
-	AutoRestartCrashTimeoutSec int = 60
+	AutoRestartCrashTimeoutSec int64 = 60
 
 	// WebhooksEnabled specifies if Webhooks (using Discord format) are enabled for alerts
 	WebhooksEnabled bool = false
@@ -65,7 +69,7 @@ var (
 	// AutoUpdateEnabled specifies if the auto update system should check for new versions of rcsm and install them
 	AutoUpdateEnabled bool = true
 	// AutoUpdateIntervalMinutes specifies how often updates should be checked
-	AutoUpdateIntervalMinutes int = 60
+	AutoUpdateIntervalMinutes int64 = 60
 	// AutoUpdateRepo specifies where to download updates for the last rcsm release
 	AutoUpdateRepo string = "https://github.com/redcraft-org/redcraft_server_management/"
 )
@@ -74,12 +78,14 @@ var (
 func ReadConfig() {
 	EnvFile = readString("RCSM_ENV_FILE", ".env")
 
-	log.Printf("Loading config from %s", EnvFile)
+	events.TriggerLogEvent(InstanceName, "info", "config", fmt.Sprintf("Loading config from %s", EnvFile))
 
 	err := godotenv.Load(EnvFile)
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		events.TriggerLogEvent(InstanceName, "warn", "config", "Error loading .env file")
 	}
+
+	InstanceName = readString("INSTANCE_NAME", InstanceName)
 
 	RedisEnabled = readBool("REDIS_ENABLED", RedisEnabled)
 	RedisHost = readString("REDIS_HOST", RedisHost)
@@ -120,12 +126,12 @@ func readString(envName string, defaultValue string) string {
 	return envVar
 }
 
-func readInt(envName string, defaultValue int) int {
+func readInt(envName string, defaultValue int64) int64 {
 	envVarRaw := os.Getenv(envName)
 	if envVarRaw == "" {
 		return defaultValue
 	}
-	envVar, err := strconv.Atoi(envVarRaw)
+	envVar, err := strconv.ParseInt(envVarRaw, 10, 64)
 	if err != nil {
 		return defaultValue
 	}

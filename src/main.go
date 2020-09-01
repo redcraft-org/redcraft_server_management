@@ -2,7 +2,8 @@ package main
 
 import (
 	"config"
-	"log"
+	"events"
+	"fmt"
 	"os"
 	"os/signal"
 	"redis"
@@ -17,7 +18,7 @@ func main() {
 }
 
 func initialize() {
-	log.Printf("Starting rcsm (RedCraft Server Manager) v%s", config.Version)
+	events.TriggerLogEvent(config.InstanceName, "info", "rcsm", fmt.Sprintf("Starting rcsm (RedCraft Server Manager) v%s", config.Version))
 
 	config.ReadConfig()
 	servers.CreateMissingServers()
@@ -35,7 +36,7 @@ func initialize() {
 }
 
 func stop() {
-	log.Printf("Stopping rcsm (RedCraft Server Manager) v%s", config.Version)
+	events.TriggerLogEvent(config.InstanceName, "info", "rcsm", fmt.Sprintf("Stopping rcsm (RedCraft Server Manager) v%s", config.Version))
 
 	if config.AutoStopOnClose {
 		servers.StopAllServers()
