@@ -18,7 +18,7 @@ func main() {
 }
 
 func initialize() {
-	events.TriggerLogEvent(config.InstanceName, "info", "rcsm", fmt.Sprintf("Starting rcsm (RedCraft Server Manager) v%s", config.Version))
+	events.TriggerLogEvent("info", "rcsm", fmt.Sprintf("Starting rcsm (RedCraft Server Manager) v%s", config.Version))
 
 	config.ReadConfig()
 	servers.CreateMissingServers()
@@ -36,7 +36,7 @@ func initialize() {
 }
 
 func stop() {
-	events.TriggerLogEvent(config.InstanceName, "info", "rcsm", fmt.Sprintf("Stopping rcsm (RedCraft Server Manager) v%s", config.Version))
+	events.TriggerLogEvent("info", "rcsm", fmt.Sprintf("Stopping rcsm (RedCraft Server Manager) v%s", config.Version))
 
 	if config.AutoStopOnClose {
 		servers.StopAllServers()

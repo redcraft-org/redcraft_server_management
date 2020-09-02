@@ -13,7 +13,7 @@ var RedisClient *redis.Client
 
 // Connect actually connects the redis client if enabled
 func Connect() {
-	events.TriggerLogEvent(config.InstanceName, "info", "redis", fmt.Sprintf("Connecting to %s", config.RedisHost))
+	events.TriggerLogEvent("info", "redis", fmt.Sprintf("Connecting to %s", config.RedisHost))
 
 	RedisClient = redis.NewClient(&redis.Options{
 		Network:  "tcp",
@@ -24,8 +24,8 @@ func Connect() {
 
 	response := RedisClient.Ping()
 	if response.String() != "PING: PONG" {
-		events.TriggerLogEvent(config.InstanceName, "severe", "redis", fmt.Sprintf("Error while connecting: %s", response))
+		events.TriggerLogEvent("severe", "redis", fmt.Sprintf("Error while connecting: %s", response))
 	} else {
-		events.TriggerLogEvent(config.InstanceName, "info", "redis", "Connected")
+		events.TriggerLogEvent("debug", "redis", "Connected")
 	}
 }

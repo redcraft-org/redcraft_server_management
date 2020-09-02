@@ -78,11 +78,11 @@ var (
 func ReadConfig() {
 	EnvFile = readString("RCSM_ENV_FILE", ".env")
 
-	events.TriggerLogEvent(InstanceName, "info", "config", fmt.Sprintf("Loading config from %s", EnvFile))
+	events.TriggerLogEvent("info", "config", fmt.Sprintf("Loading config from %s", EnvFile))
 
 	err := godotenv.Load(EnvFile)
 	if err != nil {
-		events.TriggerLogEvent(InstanceName, "warn", "config", "Error loading .env file")
+		events.TriggerLogEvent("warn", "config", "Error loading .env file")
 	}
 
 	InstanceName = readString("INSTANCE_NAME", InstanceName)
@@ -116,6 +116,12 @@ func ReadConfig() {
 	AutoUpdateEnabled = readBool("AUTO_UPDATE_ENABLED", AutoUpdateEnabled)
 	AutoUpdateIntervalMinutes = readInt("AUTO_UPDATE_INTERVAL_MINUTES", AutoUpdateIntervalMinutes)
 	AutoUpdateRepo = readString("AUTO_UPDATE_REPO", AutoUpdateRepo)
+
+	// We'll set values for events as we can't access
+	// config from the events class due to loop imports
+	events.SetInstanceName(InstanceName)
+	events.SetWebhooksEnabled(WebhooksEnabled)
+	events.SetWebhooksEndpoint(WebhooksEndpoint)
 }
 
 func readString(envName string, defaultValue string) string {

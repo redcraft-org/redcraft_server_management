@@ -23,9 +23,9 @@ func CreateMissingServers() {
 		if os.IsNotExist(err) {
 			err = os.MkdirAll(serverDirectoryPath, os.ModePerm)
 			if err != nil {
-				events.TriggerLogEvent(config.InstanceName, "severe", serverDirectoryName, fmt.Sprintf("Could not create server: ", err))
+				events.TriggerLogEvent("severe", serverDirectoryName, fmt.Sprintf("Could not create server: %s", err))
 			}
-			events.TriggerLogEvent(config.InstanceName, "info", serverDirectoryName, "Created directory for server")
+			events.TriggerLogEvent("info", serverDirectoryName, "Created directory for server")
 		}
 	}
 }
@@ -63,15 +63,15 @@ func initConfig(serverPath string) {
 
 	jsonContents, err := json.MarshalIndent(statusTemplate, "", "    ")
 	if err != nil {
-		events.TriggerLogEvent(config.InstanceName, "severe", "setup", fmt.Sprintf("Could not serialize default template: ", err))
+		events.TriggerLogEvent("severe", "setup", fmt.Sprintf("Could not serialize default template: ", err))
 	}
 
 	configFilePath := path.Join(serverPath, "rcsm_config.json")
 
 	err = ioutil.WriteFile(configFilePath, jsonContents, 0644)
 	if err != nil {
-		events.TriggerLogEvent(config.InstanceName, "severe", "setup", fmt.Sprintf("Could not save default template: ", err))
+		events.TriggerLogEvent("severe", "setup", fmt.Sprintf("Could not save default template: ", err))
 	}
 
-	events.TriggerLogEvent(config.InstanceName, "info", "setup", fmt.Sprintf("Saved default template at %s", configFilePath))
+	events.TriggerLogEvent("info", "setup", fmt.Sprintf("Saved default template at %s", configFilePath))
 }

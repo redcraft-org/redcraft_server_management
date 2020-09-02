@@ -40,7 +40,7 @@ func Discover() {
 
 	fileNodes, err := ioutil.ReadDir(config.MinecraftServersDirectory)
 	if err != nil {
-		events.TriggerLogEvent(config.InstanceName, "fatal", "setup", fmt.Sprintf("Could not scan servers: %s", err))
+		events.TriggerLogEvent("fatal", "setup", fmt.Sprintf("Could not scan servers: %s", err))
 		os.Exit(1)
 	}
 
@@ -53,13 +53,13 @@ func Discover() {
 				if !tmux.SessionExists(serverName) {
 					UpdateTemplate(serverName)
 				} else {
-					events.TriggerLogEvent(config.InstanceName, "info", serverName, "Not updating template, server is running")
+					events.TriggerLogEvent("info", serverName, "Not updating template, server is running")
 				}
 			}
 
 			minecraftServer, err := readConfig(serverPath)
 			if err != nil {
-				events.TriggerLogEvent(config.InstanceName, "severe", serverName, fmt.Sprintf("Could not read server config: %s", err))
+				events.TriggerLogEvent("severe", serverName, fmt.Sprintf("Could not read server config: %s", err))
 				continue
 			}
 
@@ -70,7 +70,7 @@ func Discover() {
 		}
 	}
 
-	events.TriggerLogEvent(config.InstanceName, "info", "setup", fmt.Sprintf("Found %d server(s)", len(minecraftServers)))
+	events.TriggerLogEvent("info", "setup", fmt.Sprintf("Found %d server(s)", len(minecraftServers)))
 }
 
 // StartServer starts a server with a specified name
@@ -79,7 +79,7 @@ func StartServer(serverName string) {
 	minecraftServersLock.Lock()
 	defer minecraftServersLock.Unlock()
 
-	events.TriggerLogEvent(config.InstanceName, "info", serverName, "Starting server")
+	events.TriggerLogEvent("info", serverName, "Starting server")
 
 	server := minecraftServers[serverName]
 
@@ -92,7 +92,7 @@ func StopServer(serverName string) {
 	minecraftServersLock.Lock()
 	defer minecraftServersLock.Unlock()
 
-	events.TriggerLogEvent(config.InstanceName, "info", serverName, "Stopping server")
+	events.TriggerLogEvent("info", serverName, "Stopping server")
 
 	server := minecraftServers[serverName]
 
@@ -105,7 +105,7 @@ func StartAllServers() {
 	minecraftServersLock.Lock()
 	defer minecraftServersLock.Unlock()
 
-	events.TriggerLogEvent(config.InstanceName, "info", "rcsm", "Starting all servers")
+	events.TriggerLogEvent("info", "rcsm", "Starting all servers")
 
 	for _, server := range minecraftServers {
 		startServer(server)
@@ -118,7 +118,7 @@ func StopAllServers() {
 	minecraftServersLock.Lock()
 	defer minecraftServersLock.Unlock()
 
-	events.TriggerLogEvent(config.InstanceName, "info", "rcsm", "Stopping all servers")
+	events.TriggerLogEvent("info", "rcsm", "Stopping all servers")
 
 	for _, server := range minecraftServers {
 		stopServer(server)
@@ -159,7 +159,7 @@ func runHealthCheck() {
 		if server.running && !tmux.SessionExists(serverName) {
 			crashTimeout, err := time.ParseDuration(fmt.Sprintf("%ds", config.AutoRestartCrashTimeoutSec))
 			if err != nil {
-				events.TriggerLogEvent(config.InstanceName, "severe", "healthcheck", fmt.Sprintf("Could not parse timeout: %s", err))
+				events.TriggerLogEvent("severe", "healthcheck", fmt.Sprintf("Could not parse timeout: %s", err))
 			} else if time.Now().Add(-crashTimeout).Before(server.firstRetry) {
 				server.restartTries = 0
 			}
@@ -171,11 +171,11 @@ func runHealthCheck() {
 			server.restartTries++
 
 			if server.restartTries > config.AutoRestartCrashMaxTries {
-				events.TriggerLogEvent(config.InstanceName, "severe", serverName, "Server crash bootloop")
+				events.TriggerLogEvent("severe", serverName, "Server crash bootloop")
 				server.running = false
 				server.crashed = true
 			} else {
-				events.TriggerLogEvent(config.InstanceName, "info", serverName, "Server is stopped, restarting")
+				events.TriggerLogEvent("warn", serverName, "Server is stopped, restarting")
 				if !config.S3Enabled {
 					UpdateTemplate(serverName)
 				}
@@ -193,18 +193,21 @@ func runHealthCheck() {
 func startServer(server MinecraftServer) bool {
 	serverName := server.name
 	if tmux.SessionExists(serverName) {
-		events.TriggerLogEvent(config.InstanceName, "info", serverName, "Server already started")
+		events.TriggerLogEvent("info", serverName, "Server already started")
+		server.running = true
+		server.crashed = false
+		minecraftServers[serverName] = server
 		return true
 	}
 
 	attachCommand, err := tmux.SessionCreate(serverName, server.fullPath, server.StartArgs, server.JarName)
 	if err != nil {
-		events.TriggerLogEvent(config.InstanceName, "severe", serverName, fmt.Sprintf("Could not start: %s", err))
+		events.TriggerLogEvent("severe", serverName, fmt.Sprintf("Could not start: %s", err))
 		isRunning := tmux.SessionExists(serverName)
 		server.running = isRunning
 		server.crashed = !isRunning
 	} else {
-		events.TriggerLogEvent(config.InstanceName, "info", serverName, fmt.Sprintf("Starting server, run \"%s\" to see the console", attachCommand))
+		events.TriggerLogEvent("info", serverName, fmt.Sprintf("Starting server, run \"%s\" to see the console", attachCommand))
 		server.running = true
 		server.crashed = false
 	}
@@ -217,18 +220,18 @@ func startServer(server MinecraftServer) bool {
 func stopServer(server MinecraftServer) bool {
 	serverName := server.name
 	if !server.running && !tmux.SessionExists(serverName) {
-		events.TriggerLogEvent(config.InstanceName, "info", serverName, "Server already stopped")
+		events.TriggerLogEvent("info", serverName, "Server already stopped")
 		return true
 	}
 
 	err := tmux.SessionTerminate(server.name, server.StopCommand, false)
 	if err != nil {
-		events.TriggerLogEvent(config.InstanceName, "severe", serverName, fmt.Sprintf("Error while stopping: %s", err))
+		events.TriggerLogEvent("severe", serverName, fmt.Sprintf("Error while stopping: %s", err))
 		isRunning := tmux.SessionExists(server.name)
 		server.running = isRunning
 		server.crashed = isRunning
 	} else {
-		events.TriggerLogEvent(config.InstanceName, "info", serverName, "Stopping server")
+		events.TriggerLogEvent("info", serverName, "Stopping server")
 		server.running = false
 		server.crashed = false
 	}

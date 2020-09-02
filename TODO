@@ -5,7 +5,7 @@ TODO:
     ✔ Get .tar from `S3_BUCKET`/directory
     ✔ Spawn server in a tmux env
     ✔ Auto restart on crash
+    ✔ Webhooks alerts
     ☐ Redis pub for console/stop/start
     ☐ Redis sub for start/stop/restart/command
-    ☐ Webhooks alerts
     ☐ Auto updater - cf https://goreleaser.com/

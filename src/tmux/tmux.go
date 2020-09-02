@@ -98,7 +98,7 @@ func SessionTerminate(serverName string, stopCommand string, instantKill bool) e
 
 	err = WaitForSessionState(serverName, false, timeoutDuration)
 	if err != nil {
-		events.TriggerLogEvent(config.InstanceName, "warn", serverName, fmt.Sprintf("Timeout shutdown of %d seconds reached, killing the server", timeoutSeconds))
+		events.TriggerLogEvent("warn", serverName, fmt.Sprintf("Timeout shutdown of %d seconds reached, killing the server", timeoutSeconds))
 		return killRawSession(sessionName)
 	}
 
@@ -107,7 +107,7 @@ func SessionTerminate(serverName string, stopCommand string, instantKill bool) e
 
 func killRawSession(sessionName string) error {
 	cmd := exec.Command("tmux", "kill-session", "-t", sessionName)
-	events.TriggerLogEvent(config.InstanceName, "warn", sessionName, "Sending kill")
+	events.TriggerLogEvent("warn", sessionName, "Sending kill")
 
 	return cmd.Run()
 }
