@@ -58,7 +58,7 @@ func downloadTemplate(serverName string) {
 	s3Location := fmt.Sprintf("s3://%s/%s", s3Bucket, templateFileName)
 	serverPath := path.Join(config.MinecraftServersDirectory, serverName)
 
-	events.TriggerLogEvent("info", serverName, fmt.Sprintf("Downloading template %s", s3Location))
+	events.TriggerLogEvent("debug", serverName, fmt.Sprintf("Downloading template %s", s3Location))
 
 	templateFile, err := ioutil.TempFile("", "rcsm-template")
 	defer templateFile.Close()
@@ -114,7 +114,7 @@ func downloadTemplate(serverName string) {
 			return
 		}
 	}
-	events.TriggerLogEvent("info", serverName, "Template applied")
+	events.TriggerLogEvent("info", serverName, fmt.Sprintf("Template applied from %s", s3Location))
 }
 
 func getS3Client() (*s3.S3, *s3manager.Downloader) {

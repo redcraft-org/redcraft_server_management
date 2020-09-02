@@ -63,14 +63,16 @@ func initConfig(serverPath string) {
 
 	jsonContents, err := json.MarshalIndent(statusTemplate, "", "    ")
 	if err != nil {
-		events.TriggerLogEvent("severe", "setup", fmt.Sprintf("Could not serialize default template: ", err))
+		events.TriggerLogEvent("fatal", "setup", fmt.Sprintf("Could not serialize default template: %s", err))
+		os.Exit(1)
 	}
 
 	configFilePath := path.Join(serverPath, "rcsm_config.json")
 
 	err = ioutil.WriteFile(configFilePath, jsonContents, 0644)
 	if err != nil {
-		events.TriggerLogEvent("severe", "setup", fmt.Sprintf("Could not save default template: ", err))
+		events.TriggerLogEvent("fatal", "setup", fmt.Sprintf("Could not save default template: %s", err))
+		os.Exit(1)
 	}
 
 	events.TriggerLogEvent("info", "setup", fmt.Sprintf("Saved default template at %s", configFilePath))

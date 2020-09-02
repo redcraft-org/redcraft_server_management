@@ -78,8 +78,6 @@ var (
 func ReadConfig() {
 	EnvFile = readString("RCSM_ENV_FILE", ".env")
 
-	events.TriggerLogEvent("info", "config", fmt.Sprintf("Loading config from %s", EnvFile))
-
 	err := godotenv.Load(EnvFile)
 	if err != nil {
 		events.TriggerLogEvent("warn", "config", "Error loading .env file")
@@ -122,6 +120,8 @@ func ReadConfig() {
 	events.SetInstanceName(InstanceName)
 	events.SetWebhooksEnabled(WebhooksEnabled)
 	events.SetWebhooksEndpoint(WebhooksEndpoint)
+
+	events.TriggerLogEvent("debug", "config", fmt.Sprintf("Loaded config from %s", EnvFile))
 }
 
 func readString(envName string, defaultValue string) string {

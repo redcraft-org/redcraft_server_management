@@ -49,7 +49,7 @@ func Discover() {
 			serverName := fileNode.Name()
 			serverPath := path.Join(config.MinecraftServersDirectory, serverName)
 
-			if !config.S3Enabled {
+			if config.S3Enabled {
 				if !tmux.SessionExists(serverName) {
 					UpdateTemplate(serverName)
 				} else {
@@ -176,7 +176,7 @@ func runHealthCheck() {
 				server.crashed = true
 			} else {
 				events.TriggerLogEvent("warn", serverName, "Server is stopped, restarting")
-				if !config.S3Enabled {
+				if config.S3Enabled {
 					UpdateTemplate(serverName)
 				}
 				startServer(server)
@@ -193,7 +193,7 @@ func runHealthCheck() {
 func startServer(server MinecraftServer) bool {
 	serverName := server.name
 	if tmux.SessionExists(serverName) {
-		events.TriggerLogEvent("info", serverName, "Server already started")
+		events.TriggerLogEvent("warn", serverName, "Server already started")
 		server.running = true
 		server.crashed = false
 		minecraftServers[serverName] = server
@@ -220,7 +220,7 @@ func startServer(server MinecraftServer) bool {
 func stopServer(server MinecraftServer) bool {
 	serverName := server.name
 	if !server.running && !tmux.SessionExists(serverName) {
-		events.TriggerLogEvent("info", serverName, "Server already stopped")
+		events.TriggerLogEvent("warn", serverName, "Server already stopped")
 		return true
 	}
 
