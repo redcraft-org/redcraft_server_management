@@ -1,25 +1,25 @@
 package events
 
 import (
+	"config"
 	"log"
 	"strings"
 )
 
-var instanceName string = "server"
-
-// SetInstanceName is used to set the reported instance name
-func SetInstanceName(instanceNameConfig string) {
-	instanceName = instanceNameConfig
-}
-
 // TriggerLogEvent is the method used to log messages so they can be broadcasted on Redis and Webhooks
 func TriggerLogEvent(level string, service string, message string) {
-	log.Printf("[%s][%s][%s] %s", instanceName, strings.ToUpper(level), service, message)
+	level = strings.ToUpper(level)
 
-	if webhooksEnabled && level != "debug" {
+	log.Printf("[%s][%s][%s] %s", config.InstanceName, level, service, message)
+
+	if config.WebhooksEnabled && level != "debug" {
 		err := SendDiscordWebhook(level, service, message)
 		if err != nil {
 			log.Printf("Error while sending webhook: %s", err)
 		}
+	}
+
+	if RedisAvailable {
+		SendRedisEvent(level, service, message)
 	}
 }

@@ -27,5 +27,7 @@ func Connect() {
 		events.TriggerLogEvent("severe", "redis", fmt.Sprintf("Error while connecting: %s", response))
 	} else {
 		events.TriggerLogEvent("debug", "redis", "Connected")
+		events.RedisClient = RedisClient
+		events.RedisAvailable = true
 	}
 }

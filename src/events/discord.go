@@ -2,15 +2,11 @@ package events
 
 import (
 	"bytes"
+	"config"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-)
-
-var (
-	webhooksEnabled  bool
-	webhooksEndpoint string
 )
 
 // DiscordWebhookRequest defines the format of a webhook request
@@ -32,16 +28,6 @@ type DiscordField struct {
 	Inline bool   `json:"inline"`
 }
 
-// SetWebhooksEnabled is used to update the state of webhooks
-func SetWebhooksEnabled(webhooksEnabledConfig bool) {
-	webhooksEnabled = webhooksEnabledConfig
-}
-
-// SetWebhooksEndpoint is used to update the endpoint for webhooks
-func SetWebhooksEndpoint(webhooksEndpointConfig string) {
-	webhooksEndpoint = webhooksEndpointConfig
-}
-
 // SendDiscordWebhook sends a webhook request to Discord
 func SendDiscordWebhook(level string, service string, message string) error {
 	levelField := DiscordField{
@@ -51,7 +37,7 @@ func SendDiscordWebhook(level string, service string, message string) error {
 	}
 	instanceField := DiscordField{
 		Name:   "Instance",
-		Value:  instanceName,
+		Value:  config.InstanceName,
 		Inline: true,
 	}
 	serviceField := DiscordField{
@@ -80,7 +66,7 @@ func SendDiscordWebhook(level string, service string, message string) error {
 		return err
 	}
 
-	request, err := http.NewRequest("POST", webhooksEndpoint, bytes.NewBuffer(jsonRequest))
+	request, err := http.NewRequest("POST", config.WebhooksEndpoint, bytes.NewBuffer(jsonRequest))
 	if err != nil {
 		return err
 	}
