@@ -30,6 +30,7 @@ var (
 	minecraftServersLock   sync.Mutex
 	healthcheckRunning     bool
 	healthcheckRunningLock sync.Mutex
+	redisSubscribed        bool
 )
 
 // Discover does a scan to know which servers exists
@@ -70,7 +71,23 @@ func Discover() {
 		}
 	}
 
+	if config.RedisEnabled && !redisSubscribed {
+		ListenForRedisCommands()
+		redisSubscribed = true
+	}
+
 	events.TriggerLogEvent("info", "setup", fmt.Sprintf("Found %d server(s)", len(minecraftServers)))
+}
+
+// ServerExists returns wether a server exists or not
+func ServerExists(serverName string) bool {
+	// Acquire lock on minecraftServers
+	minecraftServersLock.Lock()
+	defer minecraftServersLock.Unlock()
+
+	_, exists := minecraftServers[serverName]
+
+	return exists
 }
 
 // StartServer starts a server with a specified name
@@ -99,6 +116,45 @@ func StopServer(serverName string) {
 	stopServer(server)
 }
 
+// RestartServer restarts a server with a specified name
+func RestartServer(serverName string) {
+	// Acquire lock on minecraftServers
+	minecraftServersLock.Lock()
+	defer minecraftServersLock.Unlock()
+
+	events.TriggerLogEvent("info", serverName, "Restarting server")
+
+	server := minecraftServers[serverName]
+
+	stopServer(server)
+	startServer(server)
+}
+
+// RunCommandServer restarts a server with a specified name
+func RunCommandServer(serverName string, command string) {
+	// Acquire lock on minecraftServers
+	minecraftServersLock.Lock()
+	defer minecraftServersLock.Unlock()
+
+	events.TriggerLogEvent("info", serverName, fmt.Sprintf("Running command `%s`", command))
+
+	server := minecraftServers[serverName]
+
+	runCommand(server, command)
+}
+
+// RunCommandAllServers restarts a server with a specified name
+func RunCommandAllServers(command string) {
+	// Acquire lock on minecraftServers
+	minecraftServersLock.Lock()
+	defer minecraftServersLock.Unlock()
+
+	events.TriggerLogEvent("info", "rcsm", fmt.Sprintf("Running command on all servers `%s`", command))
+	for _, server := range minecraftServers {
+		runCommand(server, command)
+	}
+}
+
 // StartAllServers starts all servers
 func StartAllServers() {
 	// Acquire lock on minecraftServers
@@ -125,74 +181,24 @@ func StopAllServers() {
 	}
 }
 
-// StartHealthCheck starts a task to check that servers are still running
-func StartHealthCheck() {
-	ticker := time.NewTicker(time.Second)
-	quit := make(chan struct{})
-	go func() {
-		for {
-			select {
-			case <-ticker.C:
-				runHealthCheck()
-			case <-quit:
-				ticker.Stop()
-				return
-			}
-		}
-	}()
-}
-
-func runHealthCheck() {
-	healthcheckRunningLock.Lock()
-	defer healthcheckRunningLock.Unlock()
-	if healthcheckRunning {
-		return
-	}
-	healthcheckRunningLock.Unlock()
-
+// RestartAllServers starts all servers
+func RestartAllServers() {
 	// Acquire lock on minecraftServers
 	minecraftServersLock.Lock()
 	defer minecraftServersLock.Unlock()
 
+	events.TriggerLogEvent("info", "rcsm", "Restarting all servers")
+
 	for _, server := range minecraftServers {
-		serverName := server.name
-		if server.running && !tmux.SessionExists(serverName) {
-			crashTimeout, err := time.ParseDuration(fmt.Sprintf("%ds", config.AutoRestartCrashTimeoutSec))
-			if err != nil {
-				events.TriggerLogEvent("severe", "healthcheck", fmt.Sprintf("Could not parse timeout: %s", err))
-			} else if time.Now().Add(-crashTimeout).Before(server.firstRetry) {
-				server.restartTries = 0
-			}
-
-			// We want to log an automated restart to avoid bootloops
-			if server.restartTries == 0 {
-				server.firstRetry = time.Now()
-			}
-			server.restartTries++
-
-			if server.restartTries > config.AutoRestartCrashMaxTries {
-				events.TriggerLogEvent("severe", serverName, "Server crash bootloop")
-				server.running = false
-				server.crashed = true
-			} else {
-				events.TriggerLogEvent("warn", serverName, "Server is stopped, restarting")
-				if config.S3Enabled {
-					UpdateTemplate(serverName)
-				}
-				startServer(server)
-			}
-			minecraftServers[serverName] = server
-		}
+		stopServer(server)
+		startServer(server)
 	}
-
-	healthcheckRunningLock.Lock()
-	healthcheckRunning = false
-	// No need to unlock, the defer at the top will do it
 }
 
 func startServer(server MinecraftServer) bool {
 	serverName := server.name
-	if tmux.SessionExists(serverName) {
+	isRunning := tmux.SessionExists(serverName)
+	if isRunning {
 		events.TriggerLogEvent("warn", serverName, "Server already started")
 		server.running = true
 		server.crashed = false
@@ -203,7 +209,6 @@ func startServer(server MinecraftServer) bool {
 	attachCommand, err := tmux.SessionCreate(serverName, server.fullPath, server.StartArgs, server.JarName)
 	if err != nil {
 		events.TriggerLogEvent("severe", serverName, fmt.Sprintf("Could not start: %s", err))
-		isRunning := tmux.SessionExists(serverName)
 		server.running = isRunning
 		server.crashed = !isRunning
 	} else {
@@ -219,7 +224,8 @@ func startServer(server MinecraftServer) bool {
 
 func stopServer(server MinecraftServer) bool {
 	serverName := server.name
-	if !server.running && !tmux.SessionExists(serverName) {
+	isRunning := tmux.SessionExists(serverName)
+	if !server.running && !isRunning {
 		events.TriggerLogEvent("warn", serverName, "Server already stopped")
 		return true
 	}
@@ -227,7 +233,6 @@ func stopServer(server MinecraftServer) bool {
 	err := tmux.SessionTerminate(server.name, server.StopCommand, false)
 	if err != nil {
 		events.TriggerLogEvent("severe", serverName, fmt.Sprintf("Error while stopping: %s", err))
-		isRunning := tmux.SessionExists(server.name)
 		server.running = isRunning
 		server.crashed = isRunning
 	} else {
@@ -237,6 +242,21 @@ func stopServer(server MinecraftServer) bool {
 	}
 
 	minecraftServers[server.name] = server
+
+	return !server.running
+}
+
+func runCommand(server MinecraftServer, command string) bool {
+	serverName := server.name
+	if !server.running && !tmux.SessionExists(serverName) {
+		events.TriggerLogEvent("warn", serverName, "Tried to run command on a stopped server")
+		return true
+	}
+
+	err := tmux.SessionRunCommand(serverName, command)
+	if err != nil {
+		events.TriggerLogEvent("warn", serverName, fmt.Sprintf("Could not run command: %s", err))
+	}
 
 	return !server.running
 }

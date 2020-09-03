@@ -21,12 +21,13 @@ func initialize() {
 	events.TriggerLogEvent("info", "rcsm", fmt.Sprintf("Starting rcsm (RedCraft Server Manager) v%s", config.Version))
 
 	config.ReadConfig()
-	servers.CreateMissingServers()
-	servers.Discover()
 
 	if config.RedisEnabled {
 		redis.Connect()
 	}
+
+	servers.CreateMissingServers()
+	servers.Discover()
 
 	if config.AutoStartOnBoot {
 		servers.StartAllServers()

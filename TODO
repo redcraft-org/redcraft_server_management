@@ -7,5 +7,5 @@ TODO:
     ✔ Auto restart on crash
     ✔ Webhooks alerts
     ✔ Redis pub for events
-    ☐ Redis sub for start/stop/restart/command
+    ✔ Redis sub for start/stop/restart/command
     ☐ Auto updater - cf https://goreleaser.com/
