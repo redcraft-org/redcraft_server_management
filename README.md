@@ -110,6 +110,7 @@ You can enable this feature by setting `WEBHOOKS_ENABLED` to true.
 Make sure to add a webhook integration on the desired Discord channel and set the endpoint on rcsm using `WEBHOOKS_ENDPOINT`.
 
 Here's how the formatting looks:
+
 ![Discord webhooks](https://user-images.githubusercontent.com/2182934/92261983-6daa1180-eea8-11ea-80f1-26a35da8c207.png)
 
 ### Redis
