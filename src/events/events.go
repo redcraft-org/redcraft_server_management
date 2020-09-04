@@ -20,6 +20,9 @@ func TriggerLogEvent(level string, service string, message string) {
 	}
 
 	if RedisAvailable {
-		SendRedisEvent(level, service, message)
+		err := SendRedisEvent(level, service, message)
+		if err != nil {
+			log.Printf("Error while sending Redis pub: %s", err)
+		}
 	}
 }

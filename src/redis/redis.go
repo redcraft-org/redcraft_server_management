@@ -2,10 +2,11 @@ package redis
 
 import (
 	"config"
+	"context"
 	"events"
 	"fmt"
 
-	"github.com/davidhhuan/go-redis.v2"
+	"github.com/go-redis/redis"
 )
 
 // RedisClient is the client instance
@@ -19,12 +20,12 @@ func Connect() {
 		Network:  "tcp",
 		Addr:     config.RedisHost,
 		Password: config.RedisPassword,
-		DB:       config.RedisDatabase,
+		DB:       int(config.RedisDatabase),
 	})
 
-	response := RedisClient.Ping()
-	if response.String() != "PING: PONG" {
-		events.TriggerLogEvent("severe", "redis", fmt.Sprintf("Error while connecting: %s", response))
+	response := RedisClient.Ping(context.TODO())
+	if response.String() != "ping: PONG" {
+		events.TriggerLogEvent("severe", "redis", fmt.Sprintf("Error while connecting: `%s`", response.String()))
 	} else {
 		events.TriggerLogEvent("debug", "redis", "Connected")
 		events.RedisClient = RedisClient

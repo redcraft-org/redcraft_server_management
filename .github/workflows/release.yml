@@ -13,15 +13,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@master
 
-      - name: Install deps
-        run: sudo snap install --classic go
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.13.8'
 
       - name: Build binary
         run: scripts/build.sh
 
-      - name: Get short SHA
+      - name: Extract version
         id: version-extractor
-        run: echo "::set-output name=version::`DUMP_VERSION_AND_EXIT=1 scripts/test.sh`"
+        run: echo "::set-output name=version::`DUMP_VERSION_AND_EXIT=1 bin/rcsm_linux_386`"
 
       - name: Create release
         id: create_release
@@ -35,7 +36,7 @@ jobs:
           prerelease: false
 
       - name: Set permissions
-        run: sudo chmod 777 bin/rcsm
+        run: sudo chmod 777 bin/rcsm*
 
       - name: Upload release asset 386
         id: upload-release-asset-386

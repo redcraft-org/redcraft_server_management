@@ -1,9 +1,10 @@
 package redis
 
 import (
+	"context"
 	"time"
 
-	"github.com/davidhhuan/go-redis.v2"
+	"github.com/go-redis/redis"
 )
 
 type callbackFunc func(string, string)
@@ -17,17 +18,10 @@ type ChannelListener struct {
 
 // StartListener starts a listener and returns a ChannelListener instance
 func StartListener(channel string, callback callbackFunc) (*ChannelListener, error) {
-	var err error
-
 	listener := ChannelListener{
-		PubSub:   RedisClient.PubSub(),
+		PubSub:   RedisClient.Subscribe(context.TODO(), channel),
 		Channel:  channel,
 		Callback: callback,
-	}
-
-	err = listener.PubSub.Subscribe(listener.Channel)
-	if err != nil {
-		return nil, err
 	}
 
 	// Listen for messages
@@ -41,7 +35,7 @@ func (listener *ChannelListener) listen() error {
 	var payload string
 
 	for {
-		msg, err := listener.PubSub.ReceiveTimeout(time.Second)
+		msg, err := listener.PubSub.ReceiveTimeout(context.TODO(), time.Second)
 		if err != nil {
 			// Timeout, ignore
 			continue
@@ -54,9 +48,6 @@ func (listener *ChannelListener) listen() error {
 		case *redis.Subscription:
 			continue
 		case *redis.Message:
-			channel = m.Channel
-			payload = m.Payload
-		case *redis.PMessage:
 			channel = m.Channel
 			payload = m.Payload
 		}

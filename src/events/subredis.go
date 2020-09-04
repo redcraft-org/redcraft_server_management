@@ -2,9 +2,10 @@ package events
 
 import (
 	"config"
+	"context"
 	"encoding/json"
 
-	"github.com/davidhhuan/go-redis.v2"
+	"github.com/go-redis/redis"
 )
 
 // RedisClient will be set by the redis package
@@ -35,6 +36,6 @@ func SendRedisEvent(level string, service string, message string) error {
 		return err
 	}
 
-	response := RedisClient.Publish(config.RedisPubSubChannel, string(requestPayload))
+	response := RedisClient.Publish(context.TODO(), config.RedisPubSubChannel, string(requestPayload))
 	return response.Err()
 }
