@@ -16,8 +16,12 @@ fi
 echo "Checking libraries..."
 go get github.com/joho/godotenv
 go get github.com/go-redis/redis
-go get github.com/aws/aws-sdk-go/aws
-go get github.com/aws/aws-sdk-go/service/s3
+go get github.com/aws/aws-sdk-go
+go get github.com/google/go-github/github
+# Hack because selfupdate works as a mod
+mkdir -p src/github.com/google/go-github/v30
+cp -r src/github.com/google/go-github/github src/github.com/google/go-github/v30/github
+go get github.com/rhysd/go-github-selfupdate/selfupdate
 
 # Dev deps
 echo "Checking dev deps..."

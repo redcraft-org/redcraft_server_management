@@ -69,7 +69,9 @@ var (
 	// AutoUpdateIntervalMinutes specifies how often updates should be checked
 	AutoUpdateIntervalMinutes int64 = 60
 	// AutoUpdateRepo specifies where to download updates for the last rcsm release
-	AutoUpdateRepo string = "https://github.com/redcraft-org/redcraft_server_management/"
+	AutoUpdateRepo string = "redcraft-org/redcraft_server_management"
+	// ExitOnAutoUpdate specifies if rcsm should quit itself once updated. This is very useful when wrapped with systemd
+	ExitOnAutoUpdate bool = false
 )
 
 // ReadConfig reads the config from the env file
@@ -109,6 +111,7 @@ func ReadConfig() {
 	AutoUpdateEnabled = ReadEnvBool("AUTO_UPDATE_ENABLED", AutoUpdateEnabled)
 	AutoUpdateIntervalMinutes = ReadEnvInt("AUTO_UPDATE_INTERVAL_MINUTES", AutoUpdateIntervalMinutes)
 	AutoUpdateRepo = ReadEnvString("AUTO_UPDATE_REPO", AutoUpdateRepo)
+	ExitOnAutoUpdate = ReadEnvBool("EXIT_ON_AUTO_UPDATE", ExitOnAutoUpdate)
 }
 
 // ReadEnvString reads a string from the env variables

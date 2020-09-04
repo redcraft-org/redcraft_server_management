@@ -12,7 +12,7 @@ func TriggerLogEvent(level string, service string, message string) {
 
 	log.Printf("[%s][%s][%s] %s", config.InstanceName, level, service, message)
 
-	if config.WebhooksEnabled && level != "debug" {
+	if config.WebhooksEnabled && strings.ToLower(level) != "debug" {
 		err := SendDiscordWebhook(level, service, message)
 		if err != nil {
 			log.Printf("Error while sending webhook: %s", err)

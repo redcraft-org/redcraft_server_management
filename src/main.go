@@ -9,6 +9,7 @@ import (
 	"redis"
 	"servers"
 	"syscall"
+	"update"
 )
 
 func main() {
@@ -23,9 +24,9 @@ func initialize() {
 		os.Exit(0)
 	}
 
-	events.TriggerLogEvent("info", "rcsm", fmt.Sprintf("Starting rcsm (RedCraft Server Manager) v%s", config.Version))
-
 	config.ReadConfig()
+
+	events.TriggerLogEvent("info", "rcsm", fmt.Sprintf("Starting rcsm (RedCraft Server Manager) v%s", config.Version))
 
 	if config.RedisEnabled {
 		redis.Connect()
@@ -39,6 +40,10 @@ func initialize() {
 	}
 
 	servers.StartHealthCheck()
+
+	if config.AutoUpdateEnabled {
+		update.StartUpdateChecks()
+	}
 }
 
 func stop() {

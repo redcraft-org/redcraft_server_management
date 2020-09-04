@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 // DiscordWebhookRequest defines the format of a webhook request
@@ -52,7 +53,7 @@ func SendDiscordWebhook(level string, service string, message string) error {
 	}
 
 	embedMessage := DiscordEmbed{
-		Color:  getColorLevel(level),
+		Color:  getColorLevel(strings.ToLower(level)),
 		Fields: []DiscordField{levelField, instanceField, serviceField, messageField},
 	}
 
