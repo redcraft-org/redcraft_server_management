@@ -111,6 +111,7 @@ func ReadConfig() {
 	AutoUpdateRepo = ReadEnvString("AUTO_UPDATE_REPO", AutoUpdateRepo)
 }
 
+// ReadEnvString reads a string from the env variables
 func ReadEnvString(envName string, defaultValue string) string {
 	envVar := os.Getenv(envName)
 	if envVar == "" {
@@ -119,6 +120,7 @@ func ReadEnvString(envName string, defaultValue string) string {
 	return envVar
 }
 
+// ReadEnvInt reads an integer from the env variables
 func ReadEnvInt(envName string, defaultValue int64) int64 {
 	envVarRaw := os.Getenv(envName)
 	if envVarRaw == "" {
@@ -131,6 +133,7 @@ func ReadEnvInt(envName string, defaultValue int64) int64 {
 	return envVar
 }
 
+// ReadEnvBool reads a boolean from the env variables
 func ReadEnvBool(envName string, defaultValue bool) bool {
 	envVarRaw := os.Getenv(envName)
 	if envVarRaw == "" {

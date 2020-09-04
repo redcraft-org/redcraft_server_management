@@ -38,7 +38,7 @@ jobs:
         run: sudo chmod 777 bin/rcsm
 
       - name: Upload release asset 386
-        id: upload-release-asset
+        id: upload-release-asset-386
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -49,7 +49,7 @@ jobs:
           asset_content_type: application/x-elf
 
       - name: Upload release asset amd64
-        id: upload-release-asset
+        id: upload-release-asset-amd64
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -60,7 +60,7 @@ jobs:
           asset_content_type: application/x-elf
 
       - name: Upload release asset arm
-        id: upload-release-asset
+        id: upload-release-asset-arm
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -71,7 +71,7 @@ jobs:
           asset_content_type: application/x-elf
 
       - name: Upload release asset arm64
-        id: upload-release-asset
+        id: upload-release-asset-arm64
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
