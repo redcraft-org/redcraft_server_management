@@ -15,7 +15,7 @@ fi
 # Libraries
 echo "Checking libraries..."
 go get github.com/joho/godotenv
-go get gopkg.in/redis.v2
+go get github.com/davidhhuan/go-redis.v2
 go get github.com/aws/aws-sdk-go/aws
 go get github.com/aws/aws-sdk-go/service/s3
 

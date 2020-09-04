@@ -4,7 +4,7 @@ import (
 	"config"
 	"encoding/json"
 
-	"gopkg.in/redis.v2"
+	"github.com/davidhhuan/go-redis.v2"
 )
 
 // RedisClient will be set by the redis package

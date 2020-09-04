@@ -5,7 +5,7 @@ import (
 	"events"
 	"fmt"
 
-	"gopkg.in/redis.v2"
+	"github.com/davidhhuan/go-redis.v2"
 )
 
 // RedisClient is the client instance

@@ -3,7 +3,7 @@ package redis
 import (
 	"time"
 
-	"gopkg.in/redis.v2"
+	"github.com/davidhhuan/go-redis.v2"
 )
 
 type callbackFunc func(string, string)

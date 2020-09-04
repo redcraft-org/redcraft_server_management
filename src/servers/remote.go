@@ -3,7 +3,6 @@ package servers
 import (
 	"config"
 	"encoding/json"
-	"log"
 	"redis"
 )
 
@@ -17,7 +16,6 @@ type RedisCommand struct {
 // ListenForRedisCommands initializes the listener to listen for redis commands
 func ListenForRedisCommands() {
 	redis.StartListener(config.RedisPubSubChannel, parseRedisMessage)
-	log.Printf("ListenForRedisCommands")
 }
 
 func parseRedisMessage(channel string, payload string) {
