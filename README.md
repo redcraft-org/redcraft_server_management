@@ -111,7 +111,7 @@ Make sure to add a webhook integration on the desired Discord channel and set th
 
 Here's how the formatting looks:
 
-![Discord webhooks](https://user-images.githubusercontent.com/2182934/92261983-6daa1180-eea8-11ea-80f1-26a35da8c207.png)
+![Discord webhooks](https://user-images.githubusercontent.com/2182934/92267149-5c640380-eeae-11ea-925e-b6350f9d8633.png)
 
 ### Redis
 
