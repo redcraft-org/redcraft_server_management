@@ -18,6 +18,11 @@ func main() {
 }
 
 func initialize() {
+	if config.ReadEnvBool("DUMP_VERSION_AND_EXIT", false) {
+		fmt.Print(config.Version)
+		os.Exit(0)
+	}
+
 	events.TriggerLogEvent("info", "rcsm", fmt.Sprintf("Starting rcsm (RedCraft Server Manager) v%s", config.Version))
 
 	config.ReadConfig()

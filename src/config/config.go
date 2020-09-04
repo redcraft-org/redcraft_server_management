@@ -74,44 +74,44 @@ var (
 
 // ReadConfig reads the config from the env file
 func ReadConfig() {
-	EnvFile = readString("RCSM_ENV_FILE", ".env")
+	EnvFile = ReadEnvString("RCSM_ENV_FILE", ".env")
 
 	godotenv.Load(EnvFile)
 
-	InstanceName = readString("INSTANCE_NAME", InstanceName)
+	InstanceName = ReadEnvString("INSTANCE_NAME", InstanceName)
 
-	RedisEnabled = readBool("REDIS_ENABLED", RedisEnabled)
-	RedisHost = readString("REDIS_HOST", RedisHost)
-	RedisPassword = readString("REDIS_PASSWORD", RedisPassword)
-	RedisDatabase = readInt("REDIS_DATABASE", RedisDatabase)
-	RedisPubSubChannel = readString("REDIS_PUB_SUB_CHANNEL", RedisPubSubChannel)
+	RedisEnabled = ReadEnvBool("REDIS_ENABLED", RedisEnabled)
+	RedisHost = ReadEnvString("REDIS_HOST", RedisHost)
+	RedisPassword = ReadEnvString("REDIS_PASSWORD", RedisPassword)
+	RedisDatabase = ReadEnvInt("REDIS_DATABASE", RedisDatabase)
+	RedisPubSubChannel = ReadEnvString("REDIS_PUB_SUB_CHANNEL", RedisPubSubChannel)
 
-	S3Enabled = readBool("S3_ENABLED", S3Enabled)
-	S3Endpoint = readString("S3_ENDPOINT", S3Endpoint)
-	S3Region = readString("S3_REGION", S3Region)
-	S3Bucket = readString("S3_BUCKET", S3Bucket)
-	AWSAccessKeyID = readString("AWS_ACCESS_KEY_ID", AWSAccessKeyID)
-	AWSSecretAccessKey = readString("AWS_SECRET_ACCESS_KEY", AWSSecretAccessKey)
+	S3Enabled = ReadEnvBool("S3_ENABLED", S3Enabled)
+	S3Endpoint = ReadEnvString("S3_ENDPOINT", S3Endpoint)
+	S3Region = ReadEnvString("S3_REGION", S3Region)
+	S3Bucket = ReadEnvString("S3_BUCKET", S3Bucket)
+	AWSAccessKeyID = ReadEnvString("AWS_ACCESS_KEY_ID", AWSAccessKeyID)
+	AWSSecretAccessKey = ReadEnvString("AWS_SECRET_ACCESS_KEY", AWSSecretAccessKey)
 
-	MinecraftServersDirectory = readString("MINECRAFT_SERVERS_DIRECTORY", MinecraftServersDirectory)
-	MinecraftServersToCreate = readString("MINECRAFT_SERVERS_TO_CREATE", MinecraftServersToCreate)
-	MinecraftTmuxSessionPrefix = readString("MINECRAFT_TMUX_SESSION_PREFIX", MinecraftTmuxSessionPrefix)
+	MinecraftServersDirectory = ReadEnvString("MINECRAFT_SERVERS_DIRECTORY", MinecraftServersDirectory)
+	MinecraftServersToCreate = ReadEnvString("MINECRAFT_SERVERS_TO_CREATE", MinecraftServersToCreate)
+	MinecraftTmuxSessionPrefix = ReadEnvString("MINECRAFT_TMUX_SESSION_PREFIX", MinecraftTmuxSessionPrefix)
 
-	AutoStartOnBoot = readBool("AUTO_START_ON_BOOT", AutoStartOnBoot)
-	AutoStopOnClose = readBool("AUTO_STOP_ON_CLOSE", AutoStopOnClose)
-	AutoRestartCrashEnabled = readBool("AUTO_RESTART_CRASH_ENABLED", AutoRestartCrashEnabled)
-	AutoRestartCrashMaxTries = readInt("AUTO_RESTART_CRASH_MAX_TRIES", AutoRestartCrashMaxTries)
-	AutoRestartCrashTimeoutSec = readInt("AUTO_RESTART_CRASH_TIMEOUT_SEC", AutoRestartCrashTimeoutSec)
+	AutoStartOnBoot = ReadEnvBool("AUTO_START_ON_BOOT", AutoStartOnBoot)
+	AutoStopOnClose = ReadEnvBool("AUTO_STOP_ON_CLOSE", AutoStopOnClose)
+	AutoRestartCrashEnabled = ReadEnvBool("AUTO_RESTART_CRASH_ENABLED", AutoRestartCrashEnabled)
+	AutoRestartCrashMaxTries = ReadEnvInt("AUTO_RESTART_CRASH_MAX_TRIES", AutoRestartCrashMaxTries)
+	AutoRestartCrashTimeoutSec = ReadEnvInt("AUTO_RESTART_CRASH_TIMEOUT_SEC", AutoRestartCrashTimeoutSec)
 
-	WebhooksEnabled = readBool("WEBHOOKS_ENABLED", WebhooksEnabled)
-	WebhooksEndpoint = readString("WEBHOOKS_ENDPOINT", WebhooksEndpoint)
+	WebhooksEnabled = ReadEnvBool("WEBHOOKS_ENABLED", WebhooksEnabled)
+	WebhooksEndpoint = ReadEnvString("WEBHOOKS_ENDPOINT", WebhooksEndpoint)
 
-	AutoUpdateEnabled = readBool("AUTO_UPDATE_ENABLED", AutoUpdateEnabled)
-	AutoUpdateIntervalMinutes = readInt("AUTO_UPDATE_INTERVAL_MINUTES", AutoUpdateIntervalMinutes)
-	AutoUpdateRepo = readString("AUTO_UPDATE_REPO", AutoUpdateRepo)
+	AutoUpdateEnabled = ReadEnvBool("AUTO_UPDATE_ENABLED", AutoUpdateEnabled)
+	AutoUpdateIntervalMinutes = ReadEnvInt("AUTO_UPDATE_INTERVAL_MINUTES", AutoUpdateIntervalMinutes)
+	AutoUpdateRepo = ReadEnvString("AUTO_UPDATE_REPO", AutoUpdateRepo)
 }
 
-func readString(envName string, defaultValue string) string {
+func ReadEnvString(envName string, defaultValue string) string {
 	envVar := os.Getenv(envName)
 	if envVar == "" {
 		return defaultValue
@@ -119,7 +119,7 @@ func readString(envName string, defaultValue string) string {
 	return envVar
 }
 
-func readInt(envName string, defaultValue int64) int64 {
+func ReadEnvInt(envName string, defaultValue int64) int64 {
 	envVarRaw := os.Getenv(envName)
 	if envVarRaw == "" {
 		return defaultValue
@@ -131,7 +131,7 @@ func readInt(envName string, defaultValue int64) int64 {
 	return envVar
 }
 
-func readBool(envName string, defaultValue bool) bool {
+func ReadEnvBool(envName string, defaultValue bool) bool {
 	envVarRaw := os.Getenv(envName)
 	if envVarRaw == "" {
 		return defaultValue

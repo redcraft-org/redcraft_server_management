@@ -3,21 +3,23 @@
 set -e
 
 export GOPATH=`pwd`
-export GO_EXECUTABLE=`which go`
 
 # Set vscode settings
 if [ ! -f ".vscode/settings.json" ]; then
-    mkdir -p .vscode
-    echo -n "{
-        \"go.gopath\": \"`pwd`\"
-    }" > .vscode/settings.json
+	mkdir -p .vscode
+	echo -n "{
+		\"go.gopath\": \"`pwd`\"
+	}" > .vscode/settings.json
 fi
 
-"$GO_EXECUTABLE" get github.com/joho/godotenv
-"$GO_EXECUTABLE" get gopkg.in/redis.v2
-"$GO_EXECUTABLE" get github.com/aws/aws-sdk-go/aws
-"$GO_EXECUTABLE" get github.com/aws/aws-sdk-go/service/s3
+go get github.com/joho/godotenv
+go get gopkg.in/redis.v2
+go get github.com/aws/aws-sdk-go/aws
+go get github.com/aws/aws-sdk-go/service/s3
 
 mkdir -p bin
 
-GOOS=linux GOARCH=amd64 "$GO_EXECUTABLE" build -o bin/rcsm src/main.go
+GOOS=linux GOARCH=386 go build -o bin/rcsm_linux_386 src/main.go
+GOOS=linux GOARCH=amd64 go build -o bin/rcsm_linux_amd64 src/main.go
+GOOS=linux GOARCH=arm go build -o bin/rcsm_linux_arm src/main.go
+GOOS=linux GOARCH=arm64 go build -o bin/rcsm_linux_arm64 src/main.go
