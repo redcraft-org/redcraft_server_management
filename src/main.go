@@ -39,7 +39,9 @@ func initialize() {
 		servers.StartAllServers()
 	}
 
-	servers.StartHealthCheck()
+	if config.AutoRestartCrashEnabled {
+		servers.StartHealthCheck()
+	}
 
 	if config.AutoUpdateEnabled {
 		update.StartUpdateChecks()

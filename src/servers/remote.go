@@ -28,7 +28,6 @@ func parseRedisMessage(channel string, payload string) {
 	serverName := redisCommand.Target
 
 	if serverName == "*" {
-
 		switch redisCommand.Action {
 		case "start":
 			StartAllServers()
