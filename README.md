@@ -72,12 +72,13 @@ If `S3_ENABLED` is set to true, then when a server starts (including automated r
 
 Please notice that you can also use a 3rd party S3 compatible provider, such as Scaleway Object Storage (in fact that's what we use) or even [host it yourself](https://min.io/) by changing `S3_ENDPOINT`.
 
+:warning: :warning: :warning: If you store data in your plugin folders, S3 templates might delete or overwrite them! Please use plugins that use external databases to avoid this issue.
+
 #### Server config
 
 When rcsm starts, it will do a discovery of the folder specified by `MINECRAFT_SERVERS_DIRECTORY`. For every server, it will try to read a `rcsm_config.json` file that contains the following configuration:
 
-- `start_args` to specify Java flags such as memory usage. By default, it's set to use 6 GB of memory and uses [these flags](https://aikar.co/2018/07/02/tuning-the-jvm-g1gc-garbage-collector-flags-for-minecraft/)
-- `jar_name` for the server executable name, by default it's `server.jar`
+- `start_command` to specify Java flags such as memory usage. By default, it's set to use 6 GB of memory and uses [these flags](https://aikar.co/2018/07/02/tuning-the-jvm-g1gc-garbage-collector-flags-for-minecraft/). :warning: By default the command is made to run `server.jar`
 - `stop_command` which is the command to gracefully stop the server, by default it's `stop` but for BungeeCord you'll have to set it to `end` for example.
 
 #### Auto start/stop and "health checks"

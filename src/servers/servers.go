@@ -20,8 +20,7 @@ type MinecraftServer struct {
 	crashed      bool
 	restartTries int64
 	firstRetry   time.Time
-	StartArgs    string `json:"start_args"`
-	JarName      string `json:"jar_name"`
+	StartCommand string `json:"start_command"`
 	StopCommand  string `json:"stop_command"`
 }
 
@@ -212,7 +211,7 @@ func startServer(server MinecraftServer) bool {
 		return true
 	}
 
-	attachCommand, err := tmux.SessionCreate(serverName, server.fullPath, server.StartArgs, server.JarName)
+	attachCommand, err := tmux.SessionCreate(serverName, server.fullPath, server.StartCommand)
 	if err != nil {
 		events.TriggerLogEvent("severe", serverName, fmt.Sprintf("Could not start: %s", err))
 		server.running = isRunning

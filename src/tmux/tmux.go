@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 )
 
@@ -37,7 +38,7 @@ func WaitForSessionState(serverName string, wantedState bool, timeout time.Durat
 }
 
 // SessionCreate is used to create a tmux session and start a command
-func SessionCreate(serverName string, fullPath string, startArgs string, jarName string) (string, error) {
+func SessionCreate(serverName string, fullPath string, startCommand string) (string, error) {
 	sessionName := getSessionName(serverName)
 	attachCommand := getAttachCommand(serverName)
 
@@ -45,7 +46,10 @@ func SessionCreate(serverName string, fullPath string, startArgs string, jarName
 		return "", fmt.Errorf("Already started, run \"%s\" to see the console", attachCommand)
 	}
 
-	tmuxParams := []string{"new", "-d", "-s", sessionName, "java", startArgs, "-jar", jarName}
+	javaCommand := strings.Split(startCommand, " ")
+
+	tmuxParams := append([]string{"new", "-d", "-s", sessionName}, javaCommand...)
+
 	cmd := exec.Command("tmux", tmuxParams...)
 	cmd.Dir = fullPath
 	cmd.Stdin = os.Stdin

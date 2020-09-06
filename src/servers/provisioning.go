@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
-	"strings"
 	"sync"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -82,36 +81,39 @@ func downloadTemplate(serverName string) {
 		}
 		if err != nil {
 			events.TriggerLogEvent("severe", serverName, fmt.Sprintf("Error while reading template %s: %s", s3Location, err))
+			continue
 		}
 
-		topLevelFile := strings.Split(header.Name, "/")[0]
-		err = os.RemoveAll(path.Join(serverPath, topLevelFile))
+		err = os.RemoveAll(path.Join(serverPath, header.Name))
 		if err != nil {
 			events.TriggerLogEvent("severe", serverName, fmt.Sprintf("Could not delete previous config: %s", err))
-			return
+			continue
 		}
 
 		outputFile := path.Join(serverPath, header.Name)
 
 		directory, _ := path.Split(outputFile)
 
-		err = os.MkdirAll(directory, 0644)
+		err = os.MkdirAll(directory, os.ModePerm)
 		if err != nil {
 			events.TriggerLogEvent("severe", serverName, fmt.Sprintf("Could not create directory: %s", err))
-			return
+			continue
 		}
 
-		file, err := os.OpenFile(outputFile, os.O_CREATE|os.O_WRONLY, 0644)
-		if err != nil {
-			events.TriggerLogEvent("severe", serverName, fmt.Sprintf("Could not open file to copy from template: %s", err))
-			return
-		}
-		defer file.Close()
+		if header.Typeflag == tar.TypeReg {
+			file, err := os.OpenFile(outputFile, os.O_CREATE|os.O_WRONLY, os.ModePerm)
 
-		_, err = io.Copy(file, archive)
-		if err != nil {
-			events.TriggerLogEvent("severe", serverName, fmt.Sprintf("Could not copy file from template: %s", err))
-			return
+			if err != nil {
+				events.TriggerLogEvent("severe", serverName, fmt.Sprintf("Could not open file to copy from template: %s", err))
+				continue
+			}
+			defer file.Close()
+
+			_, err = io.Copy(file, archive)
+			if err != nil {
+				events.TriggerLogEvent("severe", serverName, fmt.Sprintf("Could not copy file from template: %s", err))
+				continue
+			}
 		}
 	}
 	events.TriggerLogEvent("info", serverName, fmt.Sprintf("Template applied from %s", s3Location))
