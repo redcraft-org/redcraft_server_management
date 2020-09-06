@@ -43,7 +43,7 @@ func runHealthCheck() {
 			crashTimeout, err := time.ParseDuration(fmt.Sprintf("%ds", config.AutoRestartCrashTimeoutSec))
 			if err != nil {
 				events.TriggerLogEvent("severe", "healthcheck", fmt.Sprintf("Could not parse timeout: %s", err))
-			} else if time.Now().Add(-crashTimeout).Before(server.firstRetry) {
+			} else if time.Now().Add(-crashTimeout).After(server.firstRetry) {
 				server.restartTries = 0
 			}
 
@@ -54,7 +54,7 @@ func runHealthCheck() {
 			server.restartTries++
 
 			if server.restartTries > config.AutoRestartCrashMaxTries {
-				events.TriggerLogEvent("severe", serverName, "Server crash bootloop")
+				events.TriggerLogEvent("severe", serverName, "Server crash bootloop detected")
 				server.running = false
 				server.crashed = true
 			} else {
