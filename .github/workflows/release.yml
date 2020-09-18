@@ -1,0 +1,83 @@
+name: Create rcsm binary
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.13.8'
+
+      - name: Build binary
+        run: scripts/build.sh
+
+      - name: Extract version
+        id: version-extractor
+        run: echo "::set-output name=version::`DUMP_VERSION_AND_EXIT=1 bin/rcsm_linux_386`"
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.version-extractor.outputs.version }}
+          release_name: Release ${{ steps.version-extractor.outputs.version }}
+          draft: false
+          prerelease: false
+
+      - name: Set permissions
+        run: sudo chmod 777 bin/rcsm*
+
+      - name: Upload release asset 386
+        id: upload-release-asset-386
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: bin/rcsm_linux_386
+          asset_name: rcsm_linux_386
+          asset_content_type: application/x-elf
+
+      - name: Upload release asset amd64
+        id: upload-release-asset-amd64
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: bin/rcsm_linux_amd64
+          asset_name: rcsm_linux_amd64
+          asset_content_type: application/x-elf
+
+      - name: Upload release asset arm
+        id: upload-release-asset-arm
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: bin/rcsm_linux_arm
+          asset_name: rcsm_linux_arm
+          asset_content_type: application/x-elf
+
+      - name: Upload release asset arm64
+        id: upload-release-asset-arm64
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: bin/rcsm_linux_arm64
+          asset_name: rcsm_linux_arm64
+          asset_content_type: application/x-elf
