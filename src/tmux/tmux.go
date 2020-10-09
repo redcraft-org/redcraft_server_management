@@ -76,7 +76,15 @@ func SessionRunCommand(serverName string, command string) error {
 		return fmt.Errorf("Server is not running, cannot run \"%s\"", command)
 	}
 
-	cmd := exec.Command("tmux", "send-keys", "-t", sessionName, command, "Enter")
+	cmd := exec.Command("tmux", "send-keys", "-t", sessionName, "-l", command)
+
+	err := cmd.Run()
+
+	if err != nil {
+		return err
+	}
+
+	cmd = exec.Command("tmux", "send-keys", "-t", sessionName, "Enter")
 
 	return cmd.Run()
 }
