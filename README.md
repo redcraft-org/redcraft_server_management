@@ -110,6 +110,7 @@ Make sure to add a webhook integration on the desired Discord channel and set th
 
 Here's how the formatting looks:
 
+<!-- Please do not fix this linter warning, it's for high DPI displays -->
 <img width="393" alt="Discord webhooks" src="https://user-images.githubusercontent.com/2182934/92288579-55071f00-eedb-11ea-9ed2-0650a29593d7.png">
 
 ### Redis

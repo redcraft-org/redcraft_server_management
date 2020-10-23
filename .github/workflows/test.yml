@@ -17,8 +17,5 @@ jobs:
       - name: Install dependencies
         run: go install
 
-      - name: Build binary
-        run: scripts/build.sh
-
-      - name: Check binary
-        run: echo "Reported rcsm version `DUMP_VERSION_AND_EXIT=1 bin/rcsm_linux_386`"
+      - name: Check compilation
+        run: echo "Reported rcsm version `DUMP_VERSION_AND_EXIT=1 scripts/test.sh`"
