@@ -2,9 +2,5 @@ bin/*
 .idea/
 .vscode/
 pkg/
-github.com/
-golang.org/
-go.opentelemetry.io/
-gopkg.in/
 
 .env
