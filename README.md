@@ -62,7 +62,7 @@ tmux session prefixes can be changed with `MINECRAFT_TMUX_SESSION_PREFIX` (defau
 
 rcsm was built primarily because other solutions didn't have any -good- solution for plugin updates.
 
-At RedCraft.org, we use [server templates](https://github.com/redcraft-org/redcraft_server_config) that generate a usable .tar archives that can be restored on a
+At RedCraft.org, we use [server templates](https://github.com/redcraft-org/redcraft_server_config) that generate a usable .tar archives that can be restored on a server.
 
 This is very useful if you use cron tasks with a tool to update a plugin repository such as [our plugin updater](https://github.com/redcraft-org/redcraft_plugins_updater).
 
