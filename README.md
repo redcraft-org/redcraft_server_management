@@ -74,9 +74,9 @@ Please notice that you can also use a 3rd party S3 compatible provider, such as 
 
 #### Server config
 
-When rcsm starts, it will do a discovery of the folder specified by `MINECRAFT_SERVERS_DIRECTORY`. For every server, it will try to read a `rcsm_json` file that contains the following configuration:
+When rcsm starts, it will do a discovery of the folder specified by `MINECRAFT_SERVERS_DIRECTORY`. For every server, it will try to read a `rcsm_config.json` file that contains the following configuration:
 
-- `start_command` to specify Java flags such as memory usage. By default, it's set to use 6 GB of memory and uses [these flags](https://aikar.co/2018/07/02/tuning-the-jvm-g1gc-garbage-collector-flags-for-minecraft/). :warning: By default the command is made to run `jar`
+- `start_command` to specify Java flags such as memory usage. By default, it's set to use 6 GB of memory and uses [these flags](https://aikar.co/2018/07/02/tuning-the-jvm-g1gc-garbage-collector-flags-for-minecraft/). :warning: By default the command is made to run `server.jar`
 - `stop_command` which is the command to gracefully stop the server, by default it's `stop` but for BungeeCord you'll have to set it to `end` for example.
 
 #### Auto start/stop and "health checks"
