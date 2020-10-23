@@ -1,9 +1,7 @@
-package servers
+package rcsm
 
 import (
-	"config"
 	"encoding/json"
-	"redis"
 )
 
 // RedisCommand defines the format of a redis command
@@ -15,7 +13,7 @@ type RedisCommand struct {
 
 // ListenForRedisCommands initializes the listener to listen for redis commands
 func ListenForRedisCommands() {
-	redis.StartListener(config.RedisPubSubChannel, parseRedisMessage)
+	StartRedisListener(RedisPubSubChannel, parseRedisMessage)
 }
 
 func parseRedisMessage(channel string, payload string) {

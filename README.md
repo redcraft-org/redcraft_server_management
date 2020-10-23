@@ -16,15 +16,13 @@ rcsm requires tmux to be installed and in the PATH to work.
 
 ## Development
 
-### Disclaimer
+### Installation
 
-We're not golang experts and I'm pretty sure we're doing stuff wrong in this project because it will set the `GOPATH` to `src`, and we use some scripts to install deps.
-
-Feel free to contribute to fix this if that's not how we're supposed to do it.
+Run `go install`, it should install all the dependencies from `go.mod`.
 
 ### Start the project
 
-rcsm requires tmux, golang 1.13.8 or later to develop for, and that's pretty much it!
+rcsm requires tmux, golang 1.14 or later to develop for, and that's pretty much it!
 
 You can start the dev server by running `scripts/test.sh` and compile the project using `scripts/build.sh`.
 
@@ -64,7 +62,7 @@ tmux session prefixes can be changed with `MINECRAFT_TMUX_SESSION_PREFIX` (defau
 
 rcsm was built primarily because other solutions didn't have any -good- solution for plugin updates.
 
-At RedCraft.org, we use [server templates](https://github.com/redcraft-org/redcraft_server_config) that generate a usable .tar archives that can be restored on a server.
+At RedCraft.org, we use [server templates](https://github.com/redcraft-org/redcraft_server_config) that generate a usable .tar archives that can be restored on a
 
 This is very useful if you use cron tasks with a tool to update a plugin repository such as [our plugin updater](https://github.com/redcraft-org/redcraft_plugins_updater).
 
@@ -76,9 +74,9 @@ Please notice that you can also use a 3rd party S3 compatible provider, such as 
 
 #### Server config
 
-When rcsm starts, it will do a discovery of the folder specified by `MINECRAFT_SERVERS_DIRECTORY`. For every server, it will try to read a `rcsm_config.json` file that contains the following configuration:
+When rcsm starts, it will do a discovery of the folder specified by `MINECRAFT_SERVERS_DIRECTORY`. For every server, it will try to read a `rcsm_json` file that contains the following configuration:
 
-- `start_command` to specify Java flags such as memory usage. By default, it's set to use 6 GB of memory and uses [these flags](https://aikar.co/2018/07/02/tuning-the-jvm-g1gc-garbage-collector-flags-for-minecraft/). :warning: By default the command is made to run `server.jar`
+- `start_command` to specify Java flags such as memory usage. By default, it's set to use 6 GB of memory and uses [these flags](https://aikar.co/2018/07/02/tuning-the-jvm-g1gc-garbage-collector-flags-for-minecraft/). :warning: By default the command is made to run `jar`
 - `stop_command` which is the command to gracefully stop the server, by default it's `stop` but for BungeeCord you'll have to set it to `end` for example.
 
 #### Auto start/stop and "health checks"

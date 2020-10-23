@@ -1,10 +1,10 @@
-package redis
+package rcsm
 
 import (
 	"context"
 	"time"
 
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v8"
 )
 
 type callbackFunc func(string, string)
@@ -16,8 +16,8 @@ type ChannelListener struct {
 	Callback callbackFunc
 }
 
-// StartListener starts a listener and returns a ChannelListener instance
-func StartListener(channel string, callback callbackFunc) (*ChannelListener, error) {
+// StartRedisListener starts a listener and returns a ChannelListener instance
+func StartRedisListener(channel string, callback callbackFunc) (*ChannelListener, error) {
 	listener := ChannelListener{
 		PubSub:   RedisClient.Subscribe(context.TODO(), channel),
 		Channel:  channel,

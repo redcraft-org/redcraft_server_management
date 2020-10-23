@@ -1,8 +1,7 @@
-package events
+package rcsm
 
 import (
 	"bytes"
-	"config"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -38,7 +37,7 @@ func SendDiscordWebhook(level string, service string, message string) error {
 	}
 	instanceField := DiscordField{
 		Name:   "Instance",
-		Value:  config.InstanceName,
+		Value:  InstanceName,
 		Inline: true,
 	}
 	serviceField := DiscordField{
@@ -67,7 +66,7 @@ func SendDiscordWebhook(level string, service string, message string) error {
 		return err
 	}
 
-	request, err := http.NewRequest("POST", config.WebhooksEndpoint, bytes.NewBuffer(jsonRequest))
+	request, err := http.NewRequest("POST", WebhooksEndpoint, bytes.NewBuffer(jsonRequest))
 	if err != nil {
 		return err
 	}

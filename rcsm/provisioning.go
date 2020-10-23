@@ -1,9 +1,7 @@
-package servers
+package rcsm
 
 import (
 	"archive/tar"
-	"config"
-	"events"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -26,7 +24,7 @@ var (
 // UpdateTemplate downloads the most recent template from S3 and tries to update server files
 func UpdateTemplate(serverName string) {
 	if !templateExists(serverName) {
-		events.TriggerLogEvent("warn", serverName, fmt.Sprintf("No template found on s3://%s", config.S3Bucket))
+		TriggerLogEvent("warn", serverName, fmt.Sprintf("No template found on s3://%s", S3Bucket))
 	} else {
 		downloadTemplate(serverName)
 	}
@@ -34,9 +32,9 @@ func UpdateTemplate(serverName string) {
 
 func templateExists(serverName string) bool {
 	client, _ := getS3Client()
-	resp, err := client.ListObjectsV2(&s3.ListObjectsV2Input{Bucket: aws.String(config.S3Bucket)})
+	resp, err := client.ListObjectsV2(&s3.ListObjectsV2Input{Bucket: aws.String(S3Bucket)})
 	if err != nil {
-		events.TriggerLogEvent("severe", serverName, fmt.Sprintf("Unable to list items in bucket %s", err))
+		TriggerLogEvent("severe", serverName, fmt.Sprintf("Unable to list items in bucket %s", err))
 		return false
 	}
 
@@ -52,12 +50,12 @@ func templateExists(serverName string) bool {
 func downloadTemplate(serverName string) {
 	_, downloader := getS3Client()
 
-	s3Bucket := config.S3Bucket
+	s3Bucket := S3Bucket
 	templateFileName := fmt.Sprintf("%s.tar", serverName)
 	s3Location := fmt.Sprintf("s3://%s/%s", s3Bucket, templateFileName)
-	serverPath := path.Join(config.MinecraftServersDirectory, serverName)
+	serverPath := path.Join(MinecraftServersDirectory, serverName)
 
-	events.TriggerLogEvent("debug", serverName, fmt.Sprintf("Downloading template %s", s3Location))
+	TriggerLogEvent("debug", serverName, fmt.Sprintf("Downloading template %s", s3Location))
 
 	templateFile, err := ioutil.TempFile("", "rcsm-template")
 	defer templateFile.Close()
@@ -69,7 +67,7 @@ func downloadTemplate(serverName string) {
 			Key:    aws.String(templateFileName),
 		})
 	if err != nil {
-		events.TriggerLogEvent("severe", serverName, fmt.Sprintf("Unable to download template: %s", err))
+		TriggerLogEvent("severe", serverName, fmt.Sprintf("Unable to download template: %s", err))
 		return
 	}
 
@@ -80,13 +78,13 @@ func downloadTemplate(serverName string) {
 			break // End of archive
 		}
 		if err != nil {
-			events.TriggerLogEvent("severe", serverName, fmt.Sprintf("Error while reading template %s: %s", s3Location, err))
+			TriggerLogEvent("severe", serverName, fmt.Sprintf("Error while reading template %s: %s", s3Location, err))
 			continue
 		}
 
 		err = os.RemoveAll(path.Join(serverPath, header.Name))
 		if err != nil {
-			events.TriggerLogEvent("severe", serverName, fmt.Sprintf("Could not delete previous config: %s", err))
+			TriggerLogEvent("severe", serverName, fmt.Sprintf("Could not delete previous config: %s", err))
 			continue
 		}
 
@@ -96,7 +94,7 @@ func downloadTemplate(serverName string) {
 
 		err = os.MkdirAll(directory, os.ModePerm)
 		if err != nil {
-			events.TriggerLogEvent("severe", serverName, fmt.Sprintf("Could not create directory: %s", err))
+			TriggerLogEvent("severe", serverName, fmt.Sprintf("Could not create directory: %s", err))
 			continue
 		}
 
@@ -104,19 +102,19 @@ func downloadTemplate(serverName string) {
 			file, err := os.OpenFile(outputFile, os.O_CREATE|os.O_WRONLY, os.ModePerm)
 
 			if err != nil {
-				events.TriggerLogEvent("severe", serverName, fmt.Sprintf("Could not open file to copy from template: %s", err))
+				TriggerLogEvent("severe", serverName, fmt.Sprintf("Could not open file to copy from template: %s", err))
 				continue
 			}
 			defer file.Close()
 
 			_, err = io.Copy(file, archive)
 			if err != nil {
-				events.TriggerLogEvent("severe", serverName, fmt.Sprintf("Could not copy file from template: %s", err))
+				TriggerLogEvent("severe", serverName, fmt.Sprintf("Could not copy file from template: %s", err))
 				continue
 			}
 		}
 	}
-	events.TriggerLogEvent("info", serverName, fmt.Sprintf("Template applied from %s", s3Location))
+	TriggerLogEvent("info", serverName, fmt.Sprintf("Template applied from %s", s3Location))
 }
 
 func getS3Client() (*s3.S3, *s3manager.Downloader) {
@@ -125,11 +123,11 @@ func getS3Client() (*s3.S3, *s3manager.Downloader) {
 
 	if s3Client == nil || s3Downloader == nil {
 		s3Session, err := session.NewSession(&aws.Config{
-			Region:   aws.String(config.S3Region),
-			Endpoint: aws.String(config.S3Endpoint),
+			Region:   aws.String(S3Region),
+			Endpoint: aws.String(S3Endpoint),
 		})
 		if err != nil {
-			events.TriggerLogEvent("fatal", "setup", fmt.Sprintf("Could not create an S3 client: %s", err))
+			TriggerLogEvent("fatal", "setup", fmt.Sprintf("Could not create an S3 client: %s", err))
 			os.Exit(1)
 		}
 
