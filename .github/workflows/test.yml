@@ -1,0 +1,21 @@
+name: Test project
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.14'
+
+      - name: Install dependencies
+        run: go install
+
+      - name: Check compilation
+        run: echo "Reported rcsm version `DUMP_VERSION_AND_EXIT=1 scripts/test.sh`"

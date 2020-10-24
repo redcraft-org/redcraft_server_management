@@ -1,9 +1,7 @@
-package servers
+package rcsm
 
 import (
-	"config"
 	"encoding/json"
-	"events"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -13,26 +11,26 @@ import (
 
 // CreateMissingServers creates missing servers from MINECRAFT_SERVERS_TO_CREATE
 func CreateMissingServers() {
-	serversToCreate := strings.Split(config.MinecraftServersToCreate, ";")
+	serversToCreate := strings.Split(MinecraftServersToCreate, ";")
 
 	for _, serverToCreate := range serversToCreate {
 		serverDirectoryName := strings.TrimSpace(serverToCreate)
-		serverDirectoryPath := path.Join(config.MinecraftServersDirectory, serverDirectoryName)
+		serverDirectoryPath := path.Join(MinecraftServersDirectory, serverDirectoryName)
 
 		_, err := os.Stat(serverDirectoryPath)
 		if os.IsNotExist(err) {
 			err = os.MkdirAll(serverDirectoryPath, os.ModePerm)
 			if err != nil {
-				events.TriggerLogEvent("severe", serverDirectoryName, fmt.Sprintf("Could not create server: %s", err))
+				TriggerLogEvent("severe", serverDirectoryName, fmt.Sprintf("Could not create server: %s", err))
 			}
-			events.TriggerLogEvent("info", serverDirectoryName, "Created directory for server")
+			TriggerLogEvent("info", serverDirectoryName, "Created directory for server")
 		}
 	}
 }
 
 func readConfig(serverPath string) (MinecraftServer, error) {
 	var minecraftServer MinecraftServer
-	configFilePath := path.Join(serverPath, "rcsm_config.json")
+	configFilePath := path.Join(serverPath, "rcsm_json")
 
 	_, err := os.Stat(configFilePath)
 	if os.IsNotExist(err) {
@@ -63,17 +61,17 @@ func initConfig(serverPath string) {
 
 	jsonContents, err := json.MarshalIndent(statusTemplate, "", "    ")
 	if err != nil {
-		events.TriggerLogEvent("fatal", "setup", fmt.Sprintf("Could not serialize default template: %s", err))
+		TriggerLogEvent("fatal", "setup", fmt.Sprintf("Could not serialize default template: %s", err))
 		os.Exit(1)
 	}
 
-	configFilePath := path.Join(serverPath, "rcsm_config.json")
+	configFilePath := path.Join(serverPath, "rcsm_json")
 
 	err = ioutil.WriteFile(configFilePath, jsonContents, 0644)
 	if err != nil {
-		events.TriggerLogEvent("fatal", "setup", fmt.Sprintf("Could not save default template: %s", err))
+		TriggerLogEvent("fatal", "setup", fmt.Sprintf("Could not save default template: %s", err))
 		os.Exit(1)
 	}
 
-	events.TriggerLogEvent("info", "setup", fmt.Sprintf("Saved default template at %s", configFilePath))
+	TriggerLogEvent("info", "setup", fmt.Sprintf("Saved default template at %s", configFilePath))
 }

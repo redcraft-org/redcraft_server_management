@@ -1,11 +1,8 @@
-package servers
+package rcsm
 
 import (
-	"config"
-	"events"
 	"fmt"
 	"time"
-	"tmux"
 )
 
 // StartHealthCheck starts a task to check that servers are still running
@@ -39,10 +36,10 @@ func runHealthCheck() {
 
 	for _, server := range minecraftServers {
 		serverName := server.name
-		if server.running && !tmux.SessionExists(serverName) {
-			crashTimeout, err := time.ParseDuration(fmt.Sprintf("%ds", config.AutoRestartCrashTimeoutSec))
+		if server.running && !SessionExists(serverName) {
+			crashTimeout, err := time.ParseDuration(fmt.Sprintf("%ds", AutoRestartCrashTimeoutSec))
 			if err != nil {
-				events.TriggerLogEvent("severe", "healthcheck", fmt.Sprintf("Could not parse timeout: %s", err))
+				TriggerLogEvent("severe", "healthcheck", fmt.Sprintf("Could not parse timeout: %s", err))
 			} else if time.Now().Add(-crashTimeout).After(server.firstRetry) {
 				server.restartTries = 0
 			}
@@ -53,13 +50,13 @@ func runHealthCheck() {
 			}
 			server.restartTries++
 
-			if server.restartTries > config.AutoRestartCrashMaxTries {
-				events.TriggerLogEvent("severe", serverName, "Server crash bootloop detected")
+			if server.restartTries > AutoRestartCrashMaxTries {
+				TriggerLogEvent("severe", serverName, "Server crash bootloop detected")
 				server.running = false
 				server.crashed = true
 			} else {
-				events.TriggerLogEvent("warn", serverName, "Server is stopped, restarting")
-				if config.S3Enabled {
+				TriggerLogEvent("warn", serverName, "Server is stopped, restarting")
+				if S3Enabled {
 					UpdateTemplate(serverName)
 				}
 				startServer(server)

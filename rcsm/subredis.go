@@ -1,18 +1,12 @@
-package events
+package rcsm
 
 import (
-	"config"
 	"context"
 	"encoding/json"
-
-	"github.com/go-redis/redis"
 )
 
-// RedisClient will be set by the redis package
-var (
-	RedisClient    *redis.Client
-	RedisAvailable bool
-)
+// RedisAvailable is used to know if redis is ready to receive messages
+var RedisAvailable bool
 
 // RedisMessage defines the structure of the messages we send on Redis
 type RedisMessage struct {
@@ -26,7 +20,7 @@ type RedisMessage struct {
 func SendRedisEvent(level string, service string, message string) error {
 	redisRequest := RedisMessage{
 		Level:    level,
-		Instance: config.InstanceName,
+		Instance: InstanceName,
 		Service:  service,
 		Message:  message,
 	}
@@ -36,6 +30,6 @@ func SendRedisEvent(level string, service string, message string) error {
 		return err
 	}
 
-	response := RedisClient.Publish(context.TODO(), config.RedisPubSubChannel, string(requestPayload))
+	response := RedisClient.Publish(context.TODO(), RedisPubSubChannel, string(requestPayload))
 	return response.Err()
 }

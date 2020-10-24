@@ -16,15 +16,13 @@ rcsm requires tmux to be installed and in the PATH to work.
 
 ## Development
 
-### Disclaimer
+### Installation
 
-We're not golang experts and I'm pretty sure we're doing stuff wrong in this project because it will set the `GOPATH` to `src`, and we use some scripts to install deps.
-
-Feel free to contribute to fix this if that's not how we're supposed to do it.
+Run `go install`, it should install all the dependencies from `go.mod`.
 
 ### Start the project
 
-rcsm requires tmux, golang 1.13.8 or later to develop for, and that's pretty much it!
+rcsm requires tmux, golang 1.14 or later to develop for, and that's pretty much it!
 
 You can start the dev server by running `scripts/test.sh` and compile the project using `scripts/build.sh`.
 
@@ -112,6 +110,7 @@ Make sure to add a webhook integration on the desired Discord channel and set th
 
 Here's how the formatting looks:
 
+<!-- Please do not fix this linter warning, it's for high DPI displays -->
 <img width="393" alt="Discord webhooks" src="https://user-images.githubusercontent.com/2182934/92288579-55071f00-eedb-11ea-9ed2-0650a29593d7.png">
 
 ### Redis
