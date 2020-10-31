@@ -30,7 +30,7 @@ func CreateMissingServers() {
 
 func readConfig(serverPath string) (MinecraftServer, error) {
 	var minecraftServer MinecraftServer
-	configFilePath := path.Join(serverPath, "rcsm_json")
+	configFilePath := path.Join(serverPath, "rcsm_config.json")
 
 	_, err := os.Stat(configFilePath)
 	if os.IsNotExist(err) {
@@ -65,7 +65,7 @@ func initConfig(serverPath string) {
 		os.Exit(1)
 	}
 
-	configFilePath := path.Join(serverPath, "rcsm_json")
+	configFilePath := path.Join(serverPath, "rcsm_config.json")
 
 	err = ioutil.WriteFile(configFilePath, jsonContents, 0644)
 	if err != nil {
