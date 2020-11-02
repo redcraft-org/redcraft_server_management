@@ -74,8 +74,6 @@ func SendDiscordWebhook(level string, service string, message string) error {
 		return err
 	}
 
-	loopCount := 0
-
 	for {
 		response, err := http.Post(WebhooksEndpoint, "application/json", bytes.NewBuffer(jsonRequest))
 		if err != nil {
@@ -83,25 +81,29 @@ func SendDiscordWebhook(level string, service string, message string) error {
 		}
 		defer response.Body.Close()
 
+		// Detect if we're getting an error
 		if response.StatusCode < 200 || response.StatusCode >= 300 {
-			loopCount++
 			body, _ := ioutil.ReadAll(response.Body)
 
 			var errorMessage DiscordErrorMessage
-			json.Unmarshal(body, &errorMessage)
+			err = json.Unmarshal(body, &errorMessage)
+			if err != nil {
+				return err
+			}
 
+			// If it's a rate limit, wait and retry
 			if errorMessage.RetryAfter > 0 {
 				sleepDuration := time.Duration(errorMessage.RetryAfter) * time.Millisecond
 				time.Sleep(sleepDuration)
 				continue
 			}
 
-			if loopCount > 5 {
-				return fmt.Errorf(string(body))
-			}
-		} else {
-			break
+			// Error was not related to rate limiting
+			return fmt.Errorf(string(body))
 		}
+
+		// Code was between 200 and 300, all good
+		break
 	}
 
 	return nil
