@@ -160,8 +160,6 @@ func StartAllServers() {
 	TriggerLogEvent("info", "rcsm", "Starting all servers")
 
 	for _, server := range minecraftServers {
-		// Let rcsm rest for a bit
-		time.Sleep(time.Second * 3)
 		startServer(server)
 	}
 }
@@ -175,8 +173,6 @@ func StopAllServers() {
 	TriggerLogEvent("info", "rcsm", "Stopping all servers")
 
 	for _, server := range minecraftServers {
-		// Let rcsm rest for a bit
-		time.Sleep(time.Second * 3)
 		stopServer(server)
 	}
 }
@@ -190,8 +186,6 @@ func RestartAllServers() {
 	TriggerLogEvent("info", "rcsm", "Restarting all servers")
 
 	for _, server := range minecraftServers {
-		// Let rcsm rest for a bit
-		time.Sleep(time.Second * 3)
 		stopServer(server)
 		startServer(server)
 	}

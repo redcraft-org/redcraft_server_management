@@ -7,12 +7,20 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 )
 
 // DiscordWebhookRequest defines the format of a webhook request
 type DiscordWebhookRequest struct {
 	Content string         `json:"content"`
 	Embeds  []DiscordEmbed `json:"embeds"`
+}
+
+// DiscordErrorMessage defines the format of a webhook request
+type DiscordErrorMessage struct {
+	Global     bool   `json:"global"`
+	Message    string `json:"message"`
+	RetryAfter int    `json:"retry_after"`
 }
 
 // DiscordEmbed defines the format of a Discord embed message
@@ -66,22 +74,36 @@ func SendDiscordWebhook(level string, service string, message string) error {
 		return err
 	}
 
-	request, err := http.NewRequest("POST", WebhooksEndpoint, bytes.NewBuffer(jsonRequest))
-	if err != nil {
-		return err
-	}
-	request.Header.Set("Content-Type", "application/json")
+	for {
+		response, err := http.Post(WebhooksEndpoint, "application/json", bytes.NewBuffer(jsonRequest))
+		if err != nil {
+			return err
+		}
+		defer response.Body.Close()
 
-	client := &http.Client{}
-	response, err := client.Do(request)
-	if err != nil {
-		return err
-	}
-	defer response.Body.Close()
+		// Detect if we're getting an error
+		if response.StatusCode < 200 || response.StatusCode >= 300 {
+			body, _ := ioutil.ReadAll(response.Body)
 
-	if response.StatusCode < 200 || response.StatusCode >= 300 {
-		body, _ := ioutil.ReadAll(response.Body)
-		return fmt.Errorf(string(body))
+			var errorMessage DiscordErrorMessage
+			err = json.Unmarshal(body, &errorMessage)
+			if err != nil {
+				return err
+			}
+
+			// If it's a rate limit, wait and retry
+			if errorMessage.RetryAfter > 0 {
+				sleepDuration := time.Duration(errorMessage.RetryAfter) * time.Millisecond
+				time.Sleep(sleepDuration)
+				continue
+			}
+
+			// Error was not related to rate limiting
+			return fmt.Errorf(string(body))
+		}
+
+		// Code was between 200 and 300, all good
+		break
 	}
 
 	return nil
