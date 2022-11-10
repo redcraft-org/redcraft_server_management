@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"strings"
 	"sync"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -82,7 +83,15 @@ func downloadTemplate(serverName string) {
 			continue
 		}
 
-		err = os.RemoveAll(path.Join(serverPath, header.Name))
+		pathToDelete := path.Join(serverPath, header.Name)
+
+		trimSet := "/."
+		if strings.Trim(pathToDelete, trimSet) == strings.Trim(serverPath, trimSet) {
+			// Don't delete the server directory
+			continue
+		}
+
+		err = os.RemoveAll(pathToDelete)
 		if err != nil {
 			TriggerLogEvent("severe", serverName, fmt.Sprintf("Could not delete previous config: %s", err))
 			continue
