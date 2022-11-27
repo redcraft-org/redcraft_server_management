@@ -33,6 +33,8 @@ func parseRedisMessage(channel string, payload string) {
 			StopAllServers()
 		case "restart":
 			RestartAllServers()
+		case "backup":
+			BackupAllServers()
 		case "run":
 			RunCommandAllServers(redisCommand.Content)
 		}
@@ -44,6 +46,8 @@ func parseRedisMessage(channel string, payload string) {
 			StopServer(serverName)
 		case "restart":
 			RestartServer(serverName)
+		case "backup":
+			BackupServer(serverName)
 		case "run":
 			RunCommandServer(serverName, redisCommand.Content)
 		}
