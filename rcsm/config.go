@@ -10,7 +10,7 @@ import (
 
 var (
 	// Version is the current version of rcsm
-	Version string = "1.0.1"
+	Version string = "1.1.0"
 	// EnvFile is the path to the .env file config
 	EnvFile string = ".env"
 
@@ -40,6 +40,19 @@ var (
 	AWSAccessKeyID string = ""
 	// AWSSecretAccessKey is the secret key for S3 authentication
 	AWSSecretAccessKey string = ""
+
+	// S3BackupEnabled specifies wether or not S3 is enabled to backup the files
+	S3BackupEnabled bool = false
+	// S3BackupEndpoint specifies the S3 endpoint if you use something else than AWS
+	S3BackupEndpoint string = ""
+	// S3BackupRegion specifies the region to use for the S3 bucket
+	S3BackupRegion string = ""
+	// S3BackupBucket specifies the bucket name for server templates
+	S3BackupBucket string = ""
+	// AWSBackupAccessKeyID is the key ID for S3 authentication
+	AWSBackupAccessKeyID string = ""
+	// AWSBackupSecretAccessKey is the secret key for S3 authentication
+	AWSBackupSecretAccessKey string = ""
 
 	// MinecraftServersDirectory is the directory where server directories are stored
 	MinecraftServersDirectory string = "/opt/minecraft"
@@ -94,6 +107,13 @@ func ReadConfig() {
 	S3Bucket = ReadEnvString("S3_BUCKET", S3Bucket)
 	AWSAccessKeyID = ReadEnvString("AWS_ACCESS_KEY_ID", AWSAccessKeyID)
 	AWSSecretAccessKey = ReadEnvString("AWS_SECRET_ACCESS_KEY", AWSSecretAccessKey)
+
+	S3BackupEnabled = ReadEnvBool("S3_BACKUP_ENABLED", S3BackupEnabled)
+	S3BackupEndpoint = ReadEnvString("S3_BACKUP_ENDPOINT", S3BackupEndpoint)
+	S3BackupRegion = ReadEnvString("S3_BACKUP_REGION", S3BackupRegion)
+	S3BackupBucket = ReadEnvString("S3_BACKUP_BUCKET", S3BackupBucket)
+	AWSBackupAccessKeyID = ReadEnvString("AWS_BACKUP_ACCESS_KEY_ID", AWSBackupAccessKeyID)
+	AWSBackupSecretAccessKey = ReadEnvString("AWS_BACKUP_SECRET_ACCESS_KEY", AWSBackupSecretAccessKey)
 
 	MinecraftServersDirectory = ReadEnvString("MINECRAFT_SERVERS_DIRECTORY", MinecraftServersDirectory)
 	MinecraftServersToCreate = ReadEnvString("MINECRAFT_SERVERS_TO_CREATE", MinecraftServersToCreate)

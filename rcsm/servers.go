@@ -11,14 +11,15 @@ import (
 
 // MinecraftServer defines the stats about a server
 type MinecraftServer struct {
-	name         string
-	fullPath     string
-	running      bool
-	crashed      bool
-	restartTries int64
-	firstRetry   time.Time
-	StartCommand string `json:"start_command"`
-	StopCommand  string `json:"stop_command"`
+	name                string
+	fullPath            string
+	running             bool
+	crashed             bool
+	restartTries        int64
+	firstRetry          time.Time
+	StartCommand        string   `json:"start_command"`
+	StopCommand         string   `json:"stop_command"`
+	DirectoriesToBackup []string `json:"directories_to_backup"`
 }
 
 var (
@@ -124,6 +125,36 @@ func RestartServer(serverName string) {
 
 	stopServer(server)
 	startServer(server)
+}
+
+// BackupServer backups a server with a specified name
+func BackupServer(serverName string) {
+	if !S3BackupEnabled {
+		TriggerLogEvent("info", serverName, "Backup is disabled, skipping")
+		return
+	}
+
+	// Acquire lock on minecraftServers
+	minecraftServersLock.Lock()
+	defer minecraftServersLock.Unlock()
+
+	TriggerLogEvent("info", serverName, "Backing up server")
+
+	server := minecraftServers[serverName]
+
+	backupServer(server)
+}
+
+// BackupAllServers backups all servers
+func BackupAllServers() {
+	// Acquire lock on minecraftServers
+	minecraftServersLock.Lock()
+	defer minecraftServersLock.Unlock()
+
+	TriggerLogEvent("info", "rcsm", fmt.Sprintf("Backing up all servers"))
+	for _, server := range minecraftServers {
+		backupServer(server)
+	}
 }
 
 // RunCommandServer restarts a server with a specified name
@@ -255,4 +286,8 @@ func runCommand(server MinecraftServer, command string) bool {
 	}
 
 	return !server.running
+}
+
+func backupServer(server MinecraftServer) {
+	BackupServerS3(server.name, server.DirectoriesToBackup)
 }
