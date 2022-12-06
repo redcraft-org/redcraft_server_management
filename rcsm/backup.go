@@ -168,7 +168,9 @@ func getS3BackupClient() (*s3.S3, *s3manager.Uploader) {
 		}
 
 		s3BackupClient = s3.New(s3Session)
-		s3BackupUploader = s3manager.NewUploader(s3Session)
+		s3BackupUploader = s3manager.NewUploader(s3Session, func(u *s3manager.Uploader) {
+			u.PartSize = 64 * 1024 * 1024 // 64MB part size, total max file size will be 64 GB
+		})
 	}
 	return s3BackupClient, s3BackupUploader
 }

@@ -10,7 +10,7 @@ import (
 
 var (
 	// Version is the current version of rcsm
-	Version string = "1.1.0"
+	Version string = "1.1.1"
 	// EnvFile is the path to the .env file config
 	EnvFile string = ".env"
 
