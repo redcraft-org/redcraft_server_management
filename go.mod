@@ -7,7 +7,6 @@ require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/go-redis/redis/v8 v8.3.2
 	github.com/joho/godotenv v1.3.0
-	github.com/otiai10/copy v1.9.0
 	github.com/rhysd/go-github-selfupdate v1.2.2
 )
 
@@ -23,10 +22,9 @@ require (
 	github.com/tcnksm/go-gitconfig v0.1.2 // indirect
 	github.com/ulikunitz/xz v0.5.5 // indirect
 	go.opentelemetry.io/otel v0.13.0 // indirect
-	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9 // indirect
-	golang.org/x/net v0.0.0-20201021035429-f5854403a974 // indirect
+	golang.org/x/crypto v0.1.0 // indirect
+	golang.org/x/net v0.1.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20181106182150-f42d05182288 // indirect
-	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/appengine v1.3.0 // indirect
 	google.golang.org/protobuf v1.23.0 // indirect
