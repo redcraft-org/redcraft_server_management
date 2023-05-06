@@ -2,6 +2,8 @@
 
 set -e
 
+export CGO_ENABLED=0
+
 mkdir -p bin
 
 echo "Compiling for linux/386"
