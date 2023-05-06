@@ -159,6 +159,7 @@ func getS3BackupClient() (*s3.S3, *s3manager.Uploader) {
 
 	if s3BackupClient == nil || s3BackupUploader == nil {
 		s3Session, err := session.NewSession(&aws.Config{
+			Credentials: credentials.NewStaticCredentials(AWSBackupAccessKeyID, AWSBackupSecretAccessKey, ""),
 			Region:   aws.String(S3BackupRegion),
 			Endpoint: aws.String(S3BackupEndpoint),
 		})
