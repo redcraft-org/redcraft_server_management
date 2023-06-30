@@ -59,7 +59,7 @@ func SessionCreate(serverName string, fullPath string, startCommand string) (str
 		return "", err
 	}
 
-	if WaitForSessionState(serverName, true, time.Second) != nil {
+	if WaitForSessionState(serverName, true, 15*time.Second) != nil {
 		return "", fmt.Errorf("Server crashed on start, check server logs")
 	}
 

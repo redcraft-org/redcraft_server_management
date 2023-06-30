@@ -136,21 +136,16 @@ func BackupServer(serverName string) {
 
 	// Acquire lock on minecraftServers
 	minecraftServersLock.Lock()
-	defer minecraftServersLock.Unlock()
+	server := minecraftServers[serverName]
+	minecraftServersLock.Unlock()
 
 	TriggerLogEvent("info", serverName, "Backing up server")
-
-	server := minecraftServers[serverName]
 
 	backupServer(server)
 }
 
 // BackupAllServers backups all servers
 func BackupAllServers() {
-	// Acquire lock on minecraftServers
-	minecraftServersLock.Lock()
-	defer minecraftServersLock.Unlock()
-
 	TriggerLogEvent("info", "rcsm", fmt.Sprintf("Backing up all servers"))
 	for _, server := range minecraftServers {
 		backupServer(server)
